@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/inventory_list_navigation"
+    app:startDestination="@id/inventory_list_destination">
+    <fragment
+        android:id="@+id/inventory_list_destination"
+        android:name="tk.jonathancowling.inventorytracker.inventorylist.AndroidView"
+        android:label="Inventory List"
+        tools:layout="@layout/fragment_item_list">
+        <action
+            android:id="@+id/action_inventory_list_to_add_item"
+            app:destination="@id/add_item_destionation" />
+    </fragment>
+    <fragment
+        android:id="@+id/add_item_destionation"
+        android:name="tk.jonathancowling.inventorytracker.additem.AndroidView"
+        android:label="Add Item"
+        tools:layout="@layout/fragment_add_item" />
+</navigation>
