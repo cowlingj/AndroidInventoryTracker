@@ -1,3 +1,5 @@
 package tk.jonathancowling.inventorytracker.additem
 
-class Model(val name: String, val quantity: Int)
+import tk.jonathancowling.inventorytracker.util.TripleState
+
+data class Model(val name: String, val quantity: TripleState<Int>)

@@ -2,31 +2,45 @@ package tk.jonathancowling.inventorytracker.additem
 
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.widget.EditText
 import androidx.databinding.*
+import tk.jonathancowling.inventorytracker.util.TripleState
 
 object Adapters {
     @JvmStatic
     @BindingAdapter("add_item_quantity")
-    fun setText(editText: EditText, int: Int?) {
-        val stringRepr = int?.toString() ?: ""
-        if (editText.text.toString() == stringRepr) {
+    fun setText(editText: EditText, prev: TripleState<Int>) {
+        val cur: TripleState<Int> = getText(editText)
+
+        if (cur == prev) {
             return
         }
-        editText.setText(stringRepr)
+
+        cur.tapWithMatchingState({
+            editText.setText(it.toString())
+        }, {
+            prev.tapWithMatchingState({ editText.setText(it.toString()) })
+        }, {
+            editText.setText("")
+        })
     }
 
     @JvmStatic
     @BindingAdapter("add_item_quantityAttrChanged")
     fun onChange(editText: EditText, listener: InverseBindingListener) {
         editText.addTextChangedListener(object : TextWatcher {
+            private var prev: CharSequence? = null
+
             override fun afterTextChanged(p0: Editable?) {}
 
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                prev = p0
+            }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                Log.i("ADAPTER", "listener onChange fired")
+                if (p0 == prev) {
+                    return
+                }
                 listener.onChange()
             }
         })
@@ -34,8 +48,7 @@ object Adapters {
 
     @JvmStatic
     @InverseBindingAdapter(attribute = "add_item_quantity")
-    fun getText(editText: EditText?): Int?
-            = editText?.text.let { if (it != null && it.isNotEmpty()) Integer.parseInt(it.toString()).apply {
-        Log.i("INVADAPTER", "int is $this")
-    } else null }
+    fun getText(editText: EditText?): TripleState<Int> = editText?.text.let {
+        TripleState.tryDataOrEmpty { if (it?.isEmpty() != false) null else Integer.parseInt(it.toString()) }
+    }
 }

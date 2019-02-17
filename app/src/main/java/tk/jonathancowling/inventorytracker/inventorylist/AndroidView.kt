@@ -31,9 +31,7 @@ class AndroidView : Fragment() {
         var data: List<ListItem> = emptyList()
 
         fab.setOnClickListener {
-            //Snackbar.make(it, "Goto ADD", Snackbar.LENGTH_LONG).show()
             findNavController().navigate(R.id.action_inventory_list_to_add_item)
-            //vm.addItem("TEST ITEM", 0)
         }
 
         val adapter = object : RecyclerView.Adapter<ListItemHolder>() {

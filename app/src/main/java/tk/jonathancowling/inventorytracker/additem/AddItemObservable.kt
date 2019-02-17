@@ -1,36 +1,39 @@
 package tk.jonathancowling.inventorytracker.additem
 
-import android.util.Log
 import androidx.databinding.*
 import androidx.databinding.library.baseAdapters.BR
+import tk.jonathancowling.inventorytracker.util.TripleState
 
-class AddItemObservable : BaseObservable(), AddItemImmutableObservable {
+class AddItemObservable : BaseObservable() {
 
     private var name = ""
-    private var quantity: Int? = null
+    private var quantity: TripleState<Int> = TripleState.fromEmpty()
 
     @Bindable
-    override fun getName() = name
+    fun getName() = name
 
     fun setName(name: String) {
-        Log.i("OBSERVABLE", "maybe setting name")
         if (this.name == name) {
             return
         }
-        Log.i("OBSERVABLE", "actually setting name")
         this.name = name
         notifyPropertyChanged(BR.name)
     }
 
     @Bindable
-    override fun getQuantity() = quantity
+    fun getQuantity() = quantity
 
-    fun setQuantity(quantity: Int?) {
-        Log.i("OBSERVABLE", "maybe setting quant")
-        if (this.quantity?.equals(quantity) == true) {
+    fun setQuantity(quantity: TripleState<Int>) {
+
+        if (this.quantity == quantity) {
             return
         }
-        Log.i("OBSERVABLE", "actually setting quant")
+
+        if (!this.quantity.isErrorState() && quantity.isErrorState()) {
+            notifyPropertyChanged(BR.quantity)
+            return
+        }
+
         this.quantity = quantity
         notifyPropertyChanged(BR.quantity)
     }
