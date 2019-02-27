@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
 import kotlinx.android.synthetic.main.inventory_list_activity.*
-import tk.jonathancowling.inventorytracker.R
 
 class MainActivity : AppCompatActivity() {
 

@@ -12,10 +12,22 @@
         <action
             android:id="@+id/action_inventory_list_to_add_item"
             app:destination="@id/add_item_destionation" />
+        <action
+            android:id="@+id/action_inventory_list_to_report"
+            app:destination="@id/report_destination" />
     </fragment>
     <fragment
         android:id="@+id/add_item_destionation"
         android:name="tk.jonathancowling.inventorytracker.additem.AndroidView"
         android:label="Add Item"
         tools:layout="@layout/fragment_add_item" />
+    <fragment
+        android:id="@+id/report_destination"
+        android:name="tk.jonathancowling.inventorytracker.report.AndroidView"
+        android:label="report_fragment"
+        tools:layout="@layout/report_fragment" >
+        <deepLink
+            android:id="@+id/deepLink"
+            app:uri="inventorytracker.jonathancowling.tk/report" />
+    </fragment>
 </navigation>
