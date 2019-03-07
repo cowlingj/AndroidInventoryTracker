@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="emailPassword"
+            type="tk.jonathancowling.inventorytracker.authentication.EmailPasswordObservable" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/frameLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".authentication.AndroidSignUpView">
+
+        <TextView
+            android:id="@+id/sign_up_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/auth_sign_up"
+            app:layout_constraintBottom_toTopOf="@+id/sign_up_field_email"
+            app:layout_constraintEnd_toStartOf="@+id/sign_up_input_right"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/sign_up_input_left"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/sign_up_field_email"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:autofillHints="email"
+            android:hint="@string/auth_email"
+            android:inputType="textEmailAddress"
+            app:layout_constraintBottom_toTopOf="@+id/sign_up_field_password"
+            app:layout_constraintEnd_toStartOf="@+id/sign_up_input_right"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/sign_up_input_left"
+            app:layout_constraintTop_toBottomOf="@id/sign_up_title"
+            tools:ignore="UnusedAttribute" />
+
+        <EditText
+            android:id="@+id/sign_up_field_password"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:autofillHints="password"
+            android:hint="@string/auth_password"
+            android:inputType="textPassword"
+            app:layout_constraintBottom_toTopOf="@+id/sign_up_button_sign_up"
+            app:layout_constraintEnd_toStartOf="@+id/sign_up_input_right"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/sign_up_input_left"
+            app:layout_constraintTop_toBottomOf="@+id/sign_up_field_email"
+            tools:ignore="UnusedAttribute" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/sign_up_input_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.75" />
+
+        <Button
+            android:id="@+id/sign_up_button_sign_up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/auth_sign_up"
+            app:layout_constraintBottom_toTopOf="@id/sign_up_button_anonymous"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sign_up_field_password" />
+
+        <Button
+            android:id="@+id/sign_up_button_anonymous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/auth_continue_anon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sign_up_button_sign_up" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/sign_up_input_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.25" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

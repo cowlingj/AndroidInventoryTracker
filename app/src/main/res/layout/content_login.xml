@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="emailPassword"
+            type="tk.jonathancowling.inventorytracker.authentication.EmailPasswordObservable" />
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/login_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/auth_login"
+            app:layout_constraintBottom_toTopOf="@+id/login_field_email"
+            app:layout_constraintEnd_toStartOf="@+id/login_input_right"
+            app:layout_constraintStart_toStartOf="@+id/login_input_left"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Login" />
+
+        <EditText
+            android:id="@+id/login_field_email"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:autofillHints="password"
+            android:hint="@string/auth_email"
+            android:inputType="textWebEmailAddress"
+            android:text="@={emailPassword.email}"
+            app:layout_constraintBottom_toTopOf="@+id/login_field_password"
+            app:layout_constraintEnd_toStartOf="@+id/login_input_right"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/login_input_left"
+            app:layout_constraintTop_toBottomOf="@+id/login_title"
+            tools:ignore="UnusedAttribute" />
+
+        <EditText
+            android:id="@+id/login_field_password"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:autofillHints="email"
+            android:hint="@string/auth_password"
+            android:inputType="textPassword"
+            android:text="@={emailPassword.password}"
+            app:layout_constraintBottom_toTopOf="@+id/login_button_login"
+            app:layout_constraintEnd_toStartOf="@+id/login_input_right"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/login_input_left"
+            app:layout_constraintTop_toBottomOf="@+id/login_field_email"
+            tools:ignore="UnusedAttribute" />
+
+        <Button
+            android:id="@+id/login_button_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/auth_login"
+            app:layout_constraintBottom_toTopOf="@+id/login_button_signup"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/login_field_password" />
+
+        <Button
+            android:id="@+id/login_button_signup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/auth_create_account"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/login_button_login" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/login_input_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.25" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/login_input_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.75" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

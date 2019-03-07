@@ -7,14 +7,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.onNavDestinationSelected
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.fragment_item_list.*
-
 import tk.jonathancowling.inventorytracker.R
-import tk.jonathancowling.inventorytracker.databinding.InventoryListItemBinding
 import tk.jonathancowling.inventorytracker.communications.AndroidStringFetcher
 import tk.jonathancowling.inventorytracker.communications.CommunicationsChannelManager
+import tk.jonathancowling.inventorytracker.databinding.InventoryListItemBinding
 
 class AndroidView : Fragment() {
 
@@ -43,6 +44,11 @@ class AndroidView : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        FirebaseAuth.getInstance().currentUser ?: let {
+            findNavController().navigate(R.id.login_destination)
+        }
+
         val vm = ViewModelProviders.of(activity!!).get(InventoryListObservable::class.java)
         var data: List<ListItem> = emptyList()
 
@@ -52,9 +58,13 @@ class AndroidView : Fragment() {
 
         val adapter = object : RecyclerView.Adapter<ListItemHolder>() {
             override fun onCreateViewHolder(p0: ViewGroup, p1: Int) =
-                ListItemHolder(InventoryListItemBinding.inflate(layoutInflater,
-                                                       p0,
-                                          false))
+                ListItemHolder(
+                    InventoryListItemBinding.inflate(
+                        layoutInflater,
+                        p0,
+                        false
+                    )
+                )
 
             override fun getItemCount() = data.size
 
@@ -70,6 +80,7 @@ class AndroidView : Fragment() {
             data = it
             adapter.notifyDataSetChanged()
         })
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -77,10 +88,15 @@ class AndroidView : Fragment() {
         inflater.inflate(R.menu.menu_main, menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-            R.id.action_settings -> true // TODO: create settings activity
+    override fun onOptionsItemSelected(item: MenuItem) =
+        item.onNavDestinationSelected(findNavController()) || when (item.itemId) {
+            R.id.menu_logout -> {
+                FirebaseAuth.getInstance().signOut()
+                activity?.recreate()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
-    }
+        }
 
     class ListItemHolder(val binding: InventoryListItemBinding) : RecyclerView.ViewHolder(binding.root)
 }
