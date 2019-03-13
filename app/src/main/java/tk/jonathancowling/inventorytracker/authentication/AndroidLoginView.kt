@@ -16,6 +16,8 @@ import kotlinx.android.synthetic.main.content_login.view.*
 import kotlinx.android.synthetic.main.fragment_logo_with_card.view.*
 
 import tk.jonathancowling.inventorytracker.R
+import tk.jonathancowling.inventorytracker.authentication.services.FirebaseAuthMechanisms
+import tk.jonathancowling.inventorytracker.authentication.services.FirebaseAuthService
 import tk.jonathancowling.inventorytracker.databinding.ContentLoginBinding
 
 class AndroidLoginView : Fragment() {
@@ -47,22 +49,13 @@ class AndroidLoginView : Fragment() {
         activity?.addOnBackPressedCallback(onBackPressed)
 
         view.login_button_login.setOnClickListener {
-            vm.validate({}, {
-                FirebaseAuth.getInstance().apply {
-                    this.addAuthStateListener(object : FirebaseAuth.AuthStateListener {
-                        override fun onAuthStateChanged(auth: FirebaseAuth) {
-                            auth.currentUser ?: return
-
-                            auth.removeAuthStateListener(this)
-                            activity?.removeOnBackPressedCallback(onBackPressed)
-                            findNavController().popBackStack()
-                        }
-                    })
-                    signInWithEmailAndPassword(it.email, it.password)
-                        .addOnFailureListener {
-                            Snackbar.make(view, "login failed", Snackbar.LENGTH_SHORT).show()
-                        }
-                }
+            vm.validate().flatMap { model ->
+                FirebaseAuthService.Factory().create()
+                    .login(FirebaseAuthMechanisms.loginEmailPassword(model.email, model.password))
+            }.subscribe({
+                findNavController().popBackStack()
+            }, {
+                Snackbar.make(view, "login failed", Snackbar.LENGTH_SHORT).show()
             })
 
         }

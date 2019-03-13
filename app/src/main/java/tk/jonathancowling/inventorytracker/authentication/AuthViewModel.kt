@@ -4,7 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
 import tk.jonathancowling.inventorytracker.BR
+import tk.jonathancowling.inventorytracker.util.AutoDisposable
+import tk.jonathancowling.inventorytracker.util.ValidationException
 import tk.jonathancowling.inventorytracker.util.addOnPropertyChangedCallback
 import java.lang.IllegalArgumentException
 
@@ -12,6 +16,7 @@ class AuthViewModel(observable: EmailPasswordObservable) : ViewModel() {
 
     private val model = MutableLiveData<Model>()
     val data: LiveData<Model> = model
+    private val disposable: CompositeDisposable by AutoDisposable.Composite()
 
     init {
         observable.addOnPropertyChangedCallback<EmailPasswordObservable> { sender, propertyId ->
@@ -23,21 +28,20 @@ class AuthViewModel(observable: EmailPasswordObservable) : ViewModel() {
         }
     }
 
-    fun validate(invalidCallback: (m: InvalidModel)->Unit, validCallback: (m: Model)->Unit) {
+    fun validate(): Single<Model> = doValidate().doOnSubscribe { disposable.add(it) }
+    private fun doValidate(): Single<Model> {
         if (data.value == null) {
-            invalidCallback(InvalidModel(isEmailInvalid = true, isPasswordInvalid = true))
-            return
+            return Single.error(InvalidModel(isEmailInvalid = true, isPasswordInvalid = true))
         }
 
         val invalidEmail = !isValidEmail(data.value?.email)
         val invalidPassword = !isValidPassword(data.value?.password)
 
         if (invalidEmail || invalidPassword) {
-            invalidCallback(InvalidModel(invalidEmail, invalidPassword))
-            return
+            return Single.error(InvalidModel(invalidEmail, invalidPassword))
         }
 
-        validCallback(data.value!!)
+        return Single.just(data.value!!)
     }
 
     private fun isValidPassword(password: String?): Boolean {
@@ -45,10 +49,10 @@ class AuthViewModel(observable: EmailPasswordObservable) : ViewModel() {
     }
 
     private fun isValidEmail(email: String?): Boolean {
-        return email?.matches(Regex("[a-zA-Z0-9.]+@[a-zA-Z]+.[a-zA-Z]+")) ?: false
+        return email?.matches(Regex("[a-zA-Z0-9.]+@[a-zA-Z0-9.]+.[a-zA-Z]+")) ?: false
     }
 
-    data class InvalidModel(val isEmailInvalid: Boolean, val isPasswordInvalid: Boolean)
+    data class InvalidModel(val isEmailInvalid: Boolean, val isPasswordInvalid: Boolean) : ValidationException()
 
     class Factory(private val observable: EmailPasswordObservable): ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
@@ -59,5 +63,10 @@ class AuthViewModel(observable: EmailPasswordObservable) : ViewModel() {
 
             return AuthViewModel(observable) as T
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposable.dispose()
     }
 }

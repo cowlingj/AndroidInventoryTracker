@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.fragment_item_list.*
 import tk.jonathancowling.inventorytracker.R
+import tk.jonathancowling.inventorytracker.authentication.services.FirebaseAuthService
 import tk.jonathancowling.inventorytracker.communications.AndroidStringFetcher
 import tk.jonathancowling.inventorytracker.communications.CommunicationsChannelManager
 import tk.jonathancowling.inventorytracker.databinding.InventoryListItemBinding
@@ -45,9 +46,10 @@ class AndroidView : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        FirebaseAuth.getInstance().currentUser ?: let {
-            findNavController().navigate(R.id.login_destination)
-        }
+        FirebaseAuthService.Factory().create()
+            .withUser().map({}, {
+                findNavController().navigate(R.id.login_destination)
+            })
 
         val vm = ViewModelProviders.of(activity!!).get(InventoryListObservable::class.java)
         var data: List<ListItem> = emptyList()
