@@ -1,6 +1,8 @@
 package tk.jonathancowling.inventorytracker.inventorylist
 
+import android.graphics.Rect
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.*
 import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
@@ -75,6 +77,18 @@ class AndroidView : Fragment() {
             }
         }
 
+        inventory_list.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                super.getItemOffsets(outRect, view, parent, state)
+                if (parent.getChildAdapterPosition(view) == state.itemCount - 1) {
+                    outRect.bottom = TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        resources.getDimension(R.dimen.inventory_list_bottom_padding),
+                        resources.displayMetrics
+                    ).toInt()
+                }
+            }
+        })
         inventory_list.adapter = adapter
         inventory_list.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
 
