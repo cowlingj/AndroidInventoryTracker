@@ -11,14 +11,13 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.get
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.android.synthetic.main.content_login.view.*
-import kotlinx.android.synthetic.main.fragment_logo_with_card.view.*
+import kotlinx.android.synthetic.main.auth_login_content.view.*
+import kotlinx.android.synthetic.main.util_logo_with_card_fragment.view.*
 
 import tk.jonathancowling.inventorytracker.R
 import tk.jonathancowling.inventorytracker.authentication.services.FirebaseAuthMechanisms
 import tk.jonathancowling.inventorytracker.authentication.services.FirebaseAuthService
-import tk.jonathancowling.inventorytracker.databinding.ContentLoginBinding
+import tk.jonathancowling.inventorytracker.databinding.AuthLoginContentBinding
 
 class AndroidLoginView : Fragment() {
 
@@ -27,9 +26,9 @@ class AndroidLoginView : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_logo_with_card, container, false)
+    ): View = inflater.inflate(R.layout.util_logo_with_card_fragment, container, false)
         .apply {
-            val binding = ContentLoginBinding.inflate(inflater, logo_with_card_content, true)
+            val binding = AuthLoginContentBinding.inflate(inflater, logo_with_card_content, true)
             val observable = EmailPasswordObservable()
             binding.emailPassword = observable
             binding.lifecycleOwner = this@AndroidLoginView

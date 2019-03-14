@@ -13,7 +13,7 @@ import androidx.navigation.ui.onNavDestinationSelected
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.android.synthetic.main.fragment_item_list.*
+import kotlinx.android.synthetic.main.inventory_list_content.*
 import tk.jonathancowling.inventorytracker.R
 import tk.jonathancowling.inventorytracker.authentication.services.FirebaseAuthService
 import tk.jonathancowling.inventorytracker.communications.AndroidStringFetcher
@@ -43,7 +43,7 @@ class AndroidView : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_item_list, container, false)
+    ): View = inflater.inflate(R.layout.inventory_list_content, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

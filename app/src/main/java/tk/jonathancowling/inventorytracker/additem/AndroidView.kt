@@ -12,9 +12,9 @@ import android.view.inputmethod.InputMethodManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
-import kotlinx.android.synthetic.main.fragment_add_item.*
+import kotlinx.android.synthetic.main.add_item_fragment.*
 
-import tk.jonathancowling.inventorytracker.databinding.FragmentAddItemBinding
+import tk.jonathancowling.inventorytracker.databinding.AddItemFragmentBinding
 import tk.jonathancowling.inventorytracker.inventorylist.InventoryListObservable
 
 class AndroidView : Fragment() {
@@ -30,7 +30,7 @@ class AndroidView : Fragment() {
 
         vm = ViewModelProviders.of(this, AddItemViewModel.Factory(observable)).get(AddItemViewModel::class.java)
 
-        val binding = FragmentAddItemBinding.inflate(inflater, container, false)
+        val binding = AddItemFragmentBinding.inflate(inflater, container, false)
         binding.addItem = observable
         binding.lifecycleOwner = this
 
