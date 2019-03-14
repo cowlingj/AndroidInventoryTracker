@@ -53,6 +53,7 @@ class AndroidLoginView : Fragment() {
                 FirebaseAuthService.Factory().create()
                     .login(FirebaseAuthMechanisms.loginEmailPassword(model.email, model.password))
             }.subscribe({
+                activity?.removeOnBackPressedCallback(onBackPressed)
                 findNavController().popBackStack()
             }, {
                 Snackbar.make(view, "login failed", Snackbar.LENGTH_SHORT).show()
