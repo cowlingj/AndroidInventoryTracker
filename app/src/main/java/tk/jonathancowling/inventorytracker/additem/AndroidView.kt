@@ -15,7 +15,8 @@ import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.add_item_fragment.*
 
 import tk.jonathancowling.inventorytracker.databinding.AddItemFragmentBinding
-import tk.jonathancowling.inventorytracker.inventorylist.InventoryListObservable
+import tk.jonathancowling.inventorytracker.inventorylist.LocalInventoryListService
+import tk.jonathancowling.inventorytracker.inventorylist.InventoryListViewModel
 
 class AndroidView : Fragment() {
 
@@ -51,9 +52,19 @@ class AndroidView : Fragment() {
                 .hideSoftInputFromWindow(activity?.currentFocus?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
 
             vm.validate({ name, quantity ->
-                ViewModelProviders.of(activity!!).get(InventoryListObservable::class.java)
-                    .addItem(name, quantity)
-                findNavController().navigateUp()
+                ViewModelProviders.of(
+                    activity!!,
+                    InventoryListViewModel.Factory(LocalInventoryListService())
+                ).get(InventoryListViewModel::class.java).let {
+                    var hasBeenCalled = false
+                    it.getData().observe(this, Observer {
+                        if (hasBeenCalled) {
+                            findNavController().navigateUp()
+                        }
+                        hasBeenCalled = true
+                    })
+                    it.addItem(name, quantity)
+                }
             })
         }
     }

@@ -1,3 +1,7 @@
 package tk.jonathancowling.inventorytracker.inventorylist
 
-open class ListItem(open val id: Int, open val name: String, open val quantity: Int)
+interface ListItem{
+    val id: Int
+    val name: String
+    val quantity: Int
+}

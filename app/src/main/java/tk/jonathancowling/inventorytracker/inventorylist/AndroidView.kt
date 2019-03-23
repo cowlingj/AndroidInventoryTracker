@@ -53,7 +53,11 @@ class AndroidView : Fragment() {
                 findNavController().navigate(R.id.login_destination)
             })
 
-        val vm = ViewModelProviders.of(activity!!).get(InventoryListObservable::class.java)
+        val vm = ViewModelProviders.of(
+            activity!!,
+            InventoryListViewModel.Factory(LocalInventoryListService())
+        ).get(InventoryListViewModel::class.java)
+
         var data: List<ListItem> = emptyList()
 
         fab.setOnClickListener {
@@ -61,11 +65,11 @@ class AndroidView : Fragment() {
         }
 
         val adapter = object : RecyclerView.Adapter<ListItemHolder>() {
-            override fun onCreateViewHolder(p0: ViewGroup, p1: Int) =
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
                 ListItemHolder(
                     InventoryListItemBinding.inflate(
                         layoutInflater,
-                        p0,
+                        parent,
                         false
                     )
                 )
@@ -74,7 +78,15 @@ class AndroidView : Fragment() {
 
             override fun onBindViewHolder(vh: ListItemHolder, i: Int) {
                 vh.binding.item = data[i]
+                if (isOnLastPage(i, vh.binding.root.height)) {
+                    vm.pager()
+                }
             }
+
+            fun isOnLastPage(itemAt: Int, itemHeight: Int) =
+                itemHeight == 0 || activity?.let {
+                    itemCount - itemAt < (it.window.decorView.height / itemHeight)
+                } ?: false
         }
 
         inventory_list.addItemDecoration(object : RecyclerView.ItemDecoration() {
