@@ -21,7 +21,7 @@ import tk.jonathancowling.inventorytracker.databinding.AuthLoginContentBinding
 
 class AndroidLoginView : Fragment() {
 
-    lateinit var vm: AuthViewModel
+    private lateinit var vm: AuthViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
