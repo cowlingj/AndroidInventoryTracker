@@ -40,19 +40,16 @@ class AndroidLoginView : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val onBackPressed = OnBackPressedCallback {
+        activity?.onBackPressedDispatcher?.addCallback(this, OnBackPressedCallback {
             Snackbar.make(view, "please login to continue", Snackbar.LENGTH_SHORT).show()
             true
-        }
-
-        activity?.addOnBackPressedCallback(onBackPressed)
+        })
 
         view.login_button_login.setOnClickListener {
             vm.validate().flatMap { model ->
                 FirebaseAuthService.Factory().create()
                     .login(FirebaseAuthMechanisms.loginEmailPassword(model.email, model.password))
             }.subscribe({
-                activity?.removeOnBackPressedCallback(onBackPressed)
                 findNavController().popBackStack()
             }, {
                 Snackbar.make(view, "login failed", Snackbar.LENGTH_SHORT).show()
@@ -61,7 +58,6 @@ class AndroidLoginView : Fragment() {
         }
 
         view.login_button_signup.setOnClickListener {
-            activity?.removeOnBackPressedCallback(onBackPressed)
             findNavController().navigate(R.id.sign_up_destination)
         }
     }
