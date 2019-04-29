@@ -1,0 +1,3 @@
+[submodule "listclient/api"]
+	path = listclient/api
+	url = git@github.com:cowlingj/Inventory-Tracker-Api.git

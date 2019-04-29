@@ -7,9 +7,9 @@ import io.reactivex.Single
 import tk.jonathancowling.inventorytracker.BuildConfig
 import tk.jonathancowling.inventorytracker.listclient.ApiClient
 import tk.jonathancowling.inventorytracker.listclient.api.DefaultApi
-import tk.jonathancowling.inventorytracker.listclient.Item
-import tk.jonathancowling.inventorytracker.listclient.ItemPrototype
-import tk.jonathancowling.inventorytracker.listclient.PartialItem
+import tk.jonathancowling.inventorytracker.listclient.models.Item
+import tk.jonathancowling.inventorytracker.listclient.models.ItemPrototype
+import tk.jonathancowling.inventorytracker.listclient.models.PartialItem
 import tk.jonathancowling.inventorytracker.util.mapIndexedToPairs
 import tk.jonathancowling.inventorytracker.util.splice
 
@@ -75,7 +75,13 @@ class ApiInventoryListService : InventoryListService {
     }
 
     override fun changeQuantity(id: String, newQuantity: Int): Single<out Item> {
-        return listClient.listPut(PartialItem(id, null, newQuantity)).singleOrError()
+        return listClient.listPut(
+            PartialItem(
+                id,
+                null,
+                newQuantity
+            )
+        ).singleOrError()
             .doOnSuccess { item ->
                 val i = internal
                     .value

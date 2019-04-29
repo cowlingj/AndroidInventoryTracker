@@ -3,7 +3,7 @@ package tk.jonathancowling.inventorytracker.inventorylist
 import androidx.lifecycle.LiveData
 import io.reactivex.ObservableSource
 import io.reactivex.Single
-import tk.jonathancowling.inventorytracker.listclient.Item
+import tk.jonathancowling.inventorytracker.listclient.models.Item
 
 interface InventoryListService {
     val inventoryList: LiveData<out List<Item>>

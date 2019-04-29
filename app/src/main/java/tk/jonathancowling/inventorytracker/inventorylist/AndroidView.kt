@@ -21,7 +21,7 @@ import tk.jonathancowling.inventorytracker.authentication.services.FirebaseAuthS
 import tk.jonathancowling.inventorytracker.communications.AndroidStringFetcher
 import tk.jonathancowling.inventorytracker.communications.CommunicationsChannelManager
 import tk.jonathancowling.inventorytracker.databinding.InventoryListItemBinding
-import tk.jonathancowling.inventorytracker.listclient.Item
+import tk.jonathancowling.inventorytracker.listclient.models.Item
 
 class AndroidView : Fragment() {
 

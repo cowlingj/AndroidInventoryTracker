@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import io.reactivex.ObservableSource
 import io.reactivex.Single
-import tk.jonathancowling.inventorytracker.listclient.Item
+import tk.jonathancowling.inventorytracker.listclient.models.Item
 import tk.jonathancowling.inventorytracker.util.prepend
 import java.util.*
 

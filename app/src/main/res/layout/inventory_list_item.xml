@@ -8,7 +8,7 @@
 
         <variable
             name="item"
-            type="tk.jonathancowling.inventorytracker.listclient.Item" />
+            type="tk.jonathancowling.inventorytracker.listclient.models.Item" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

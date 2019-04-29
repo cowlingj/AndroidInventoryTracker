@@ -45,24 +45,28 @@ dependencies {
 openApiGenerate {
     generatorName = "java"
     outputDir = "listclient"
-    inputSpec = "../api/api/api.yml"
-    modelFilesConstrainedTo = []
-    supportingFilesConstrainedTo = []
+    inputSpec = "${projectDir.name}/api/api.yml"
     configOptions = [
             sourceFolder: "build/generated/source/api/main/java",
-            useRxJava2: "true",
-            java8: "false",
+            useRxJava2: true,
+            java8: false,
             dateLibrary: "threetenbp",
             booleanGetterPrefix: "is"
     ]
+    systemProperties = [
+            modelDocs: "false",
+            models: "false",
+            apis: "",
+            supportingFiles: ""
+    ]
+
     library = "retrofit2"
-    modelPackage = "tk.jonathancowling.inventorytracker.listclient_model"
+    modelPackage = "tk.jonathancowling.inventorytracker.listclient.models"
     apiPackage = "tk.jonathancowling.inventorytracker.listclient.api"
     invokerPackage = "tk.jonathancowling.inventorytracker.listclient"
     groupId = "tk.jonathancowling"
     id = "inventorytracker-listclient"
     version = "0.0.1"
-
 }
 
 task compileGenerated {
@@ -71,3 +75,5 @@ task compileGenerated {
         sourceSet.java.srcDirs += "build/generated/source/api/${sourceSet.name}/java"
     }
 }
+
+compileJava.dependsOn tasks.openApiGenerate, compileGenerated

@@ -3,7 +3,7 @@ package tk.jonathancowling.inventorytracker.inventorylist
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import tk.jonathancowling.inventorytracker.listclient.Item
+import tk.jonathancowling.inventorytracker.listclient.models.Item
 
 class InventoryListViewModel(private val listService: InventoryListService) : ViewModel() {
 
