@@ -1,14 +1,17 @@
 package tk.jonathancowling.inventorytracker.inventorylist
 
 import androidx.lifecycle.LiveData
+import io.reactivex.ObservableSource
+import io.reactivex.Single
+import tk.jonathancowling.inventorytracker.listclient.Item
 
 interface InventoryListService {
-    val inventoryList: LiveData<out List<ListItem>>
-    fun add(name: String, quantity: Int): ListItem
-    fun remove(id: Int): ListItem
-    fun find(id: Int): ListItem
-    fun pager(pageSize: Int): () -> Unit
-    fun all()
-    fun changeName(id: Int, newName: String)
-    fun changeQuantity(id: Int, newQuantity: Int)
+    val inventoryList: LiveData<out List<Item>>
+    fun add(name: String, quantity: Int): Single<out Item>
+    fun remove(id: String): Single<out Item>
+    fun find(id: String): Single<out Item>
+    fun pager(pageSize: Int): ObservableSource<Unit>
+    fun all(): Single<Unit>
+    fun changeName(id: String, newName: String): Single<out Item>
+    fun changeQuantity(id: String, newQuantity: Int): Single<out Item>
 }

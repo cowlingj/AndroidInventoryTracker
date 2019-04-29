@@ -12,15 +12,19 @@ import android.view.inputmethod.InputMethodManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.add_item_fragment.*
 
 import tk.jonathancowling.inventorytracker.databinding.AddItemFragmentBinding
+import tk.jonathancowling.inventorytracker.inventorylist.ApiInventoryListService
 import tk.jonathancowling.inventorytracker.inventorylist.LocalInventoryListService
 import tk.jonathancowling.inventorytracker.inventorylist.InventoryListViewModel
+import tk.jonathancowling.inventorytracker.util.AutoDisposable
 
 class AndroidView : Fragment() {
 
     private lateinit var vm: AddItemViewModel
+    private val disposable: CompositeDisposable by AutoDisposable.Composite()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,9 +67,14 @@ class AndroidView : Fragment() {
                         }
                         hasBeenCalled = true
                     })
-                    it.addItem(name, quantity)
+                    disposable.add(it.addItem(name, quantity).subscribe({}, {}))
                 }
             })
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposable.clear()
     }
 }

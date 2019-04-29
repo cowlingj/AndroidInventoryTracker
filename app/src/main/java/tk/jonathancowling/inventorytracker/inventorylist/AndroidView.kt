@@ -2,6 +2,7 @@ package tk.jonathancowling.inventorytracker.inventorylist
 
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import androidx.core.app.NotificationManagerCompat
@@ -13,12 +14,14 @@ import androidx.navigation.ui.onNavDestinationSelected
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.inventory_list_content.*
 import tk.jonathancowling.inventorytracker.R
 import tk.jonathancowling.inventorytracker.authentication.services.FirebaseAuthService
 import tk.jonathancowling.inventorytracker.communications.AndroidStringFetcher
 import tk.jonathancowling.inventorytracker.communications.CommunicationsChannelManager
 import tk.jonathancowling.inventorytracker.databinding.InventoryListItemBinding
+import tk.jonathancowling.inventorytracker.listclient.Item
 
 class AndroidView : Fragment() {
 
@@ -58,7 +61,7 @@ class AndroidView : Fragment() {
             InventoryListViewModel.Factory(LocalInventoryListService())
         ).get(InventoryListViewModel::class.java)
 
-        var data: List<ListItem> = emptyList()
+        var data: List<Item> = emptyList()
 
         fab.setOnClickListener {
             findNavController().navigate(R.id.action_inventory_list_to_add_item)
@@ -79,7 +82,21 @@ class AndroidView : Fragment() {
             override fun onBindViewHolder(vh: ListItemHolder, i: Int) {
                 vh.binding.item = data[i]
                 if (isOnLastPage(i, vh.binding.root.height)) {
-                    vm.pager()
+                    vm.pager.subscribe(object : io.reactivex.Observer<Unit> {
+                        override fun onComplete() {
+                            Log.d(this::class.java.simpleName, "loaded more stuffs")
+                        }
+
+                        override fun onSubscribe(d: Disposable) {
+                        }
+
+                        override fun onNext(t: Unit) {
+                        }
+
+                        override fun onError(e: Throwable) {
+                        }
+
+                    })
                 }
             }
 

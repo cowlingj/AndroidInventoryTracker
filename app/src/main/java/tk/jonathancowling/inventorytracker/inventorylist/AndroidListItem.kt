@@ -1,6 +1,8 @@
 package tk.jonathancowling.inventorytracker.inventorylist
 
-class AndroidListItem(private val item: ListItem, var isInUse: Boolean = true) : ListItem by item {
-    constructor(id: Int, name: String, quantity: Int, isInUse: Boolean = true)
-            : this(ListItemImpl(id, name, quantity), isInUse)
+import tk.jonathancowling.inventorytracker.listclient.Item
+
+class AndroidListItem(private val item: Item, var isInUse: Boolean = true) : Item(item.id, item.name, item.quantity) {
+    constructor(id: String, name: String, quantity: Int, isInUse: Boolean = true)
+            : this(Item(id, name, quantity), isInUse)
 }
