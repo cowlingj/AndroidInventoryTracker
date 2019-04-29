@@ -1,0 +1,73 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.openapitools:openapi-generator-gradle-plugin:3.3.4"
+    }
+}
+
+plugins {
+    id "java-library"
+    id 'kotlin'
+}
+
+apply plugin: 'org.openapi.generator'
+
+group = 'tk.jonathancowling'
+version = '0.0.1'
+
+repositories {
+    jcenter()
+    google()
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains:annotations:17.0.0"
+    compile "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofit_version"
+    compile "com.squareup.retrofit2:converter-scalars:$rootProject.ext.retrofit_version"
+    compile "com.squareup.retrofit2:converter-gson:$rootProject.ext.retrofit_version"
+    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    compile "io.reactivex.rxjava2:rxjava:$rootProject.ext.rx_java_version"
+    compile "io.swagger:swagger-annotations:$rootProject.ext.swagger_annotations_version"
+    compile ("org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$rootProject.ext.oltu_version"){
+        exclude group:'org.apache.oltu.oauth2' , module: 'org.apache.oltu.oauth2.common'
+    }
+    compile "io.gsonfire:gson-fire:$rootProject.ext.json_fire_version"
+    compile "org.threeten:threetenbp:$rootProject.ext.threetenbp_version"
+    testCompile "junit:junit:$rootProject.ext.junit_version"
+}
+
+openApiGenerate {
+    generatorName = "java"
+    outputDir = "listclient"
+    inputSpec = "../api/api/api.yml"
+    modelFilesConstrainedTo = []
+    supportingFilesConstrainedTo = []
+    configOptions = [
+            sourceFolder: "build/generated/source/api/main/java",
+            useRxJava2: "true",
+            java8: "false",
+            dateLibrary: "threetenbp",
+            booleanGetterPrefix: "is"
+    ]
+    library = "retrofit2"
+    modelPackage = "tk.jonathancowling.inventorytracker.listclient_model"
+    apiPackage = "tk.jonathancowling.inventorytracker.listclient.api"
+    invokerPackage = "tk.jonathancowling.inventorytracker.listclient"
+    groupId = "tk.jonathancowling"
+    id = "inventorytracker-listclient"
+    version = "0.0.1"
+
+}
+
+task compileGenerated {
+    sourceSets.all { sourceSet ->
+        sourceSet.java.srcDirs += "build/generated/source/api/main/java"
+        sourceSet.java.srcDirs += "build/generated/source/api/${sourceSet.name}/java"
+    }
+}
