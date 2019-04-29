@@ -74,6 +74,8 @@ task compileGenerated {
         sourceSet.java.srcDirs += "build/generated/source/api/main/java"
         sourceSet.java.srcDirs += "build/generated/source/api/${sourceSet.name}/java"
     }
+    // fixed bug in openapi plugin (bug raised for maven https://github.com/OpenAPITools/openapi-generator/issues/2737)
+    project.delete(files("${projectDir}/gradle"))
 }
 
 compileJava.dependsOn tasks.openApiGenerate, compileGenerated
