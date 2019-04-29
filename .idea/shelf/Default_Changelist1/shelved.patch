@@ -1,0 +1,131 @@
+Index: app/src/main/java/tk/jonathancowling/inventorytracker/inventorylist/InventoryListObservable.kt
+===================================================================
+--- app/src/main/java/tk/jonathancowling/inventorytracker/inventorylist/InventoryListObservable.kt	(revision 8c09ec1fe6901984c1732348d0670ccd2b0ae6d1)
++++ app/src/main/java/tk/jonathancowling/inventorytracker/inventorylist/InventoryListViewModel.kt	(date 1552958339000)
+@@ -3,15 +3,25 @@
+ import androidx.lifecycle.LiveData
+ import androidx.lifecycle.MutableLiveData
+ import androidx.lifecycle.ViewModel
++import io.reactivex.Single
++import io.reactivex.disposables.CompositeDisposable
++import tk.jonathancowling.inventorytracker.util.AutoDisposable
++import tk.jonathancowling.inventorytracker.util.Optional
+ import tk.jonathancowling.inventorytracker.util.splice
+ 
+-class InventoryListObservable : ViewModel() {
+-    private val list: MutableLiveData<List<DataListItem>> = MutableLiveData()
++class InventoryListViewModel(private val listService: InventoryListService) : ViewModel() {
++    private val list: MutableLiveData<List<AndroidListItem>> = MutableLiveData()
++    private val disposable: CompositeDisposable by AutoDisposable.Composite()
+ 
+-    fun getData(): LiveData<List<DataListItem>> = list
++    fun getData(): LiveData<List<AndroidListItem>> = list
+ 
+     init {
+         list.value = listOf()
++        disposable.add(listService.all().subscribe({ fetchedList ->
++            list.value = fetchedList.map { AndroidListItem(it, true) }
++        }, {
++            // TODO: err
++        }))
+     }
+ 
+     fun addItem(name: String, quantity: Int) {
+@@ -20,33 +30,82 @@
+             ?: list.value?.size
+             ?: 0
+ 
+-        list.value = listOf(DataListItem(newId, name, quantity, true)) + (list.value ?: emptyList())
++            // TODO: no need for lazy remove, remove will actually clear the list
++            disposable.add(listService.find(newId).map {
++                Optional.of(it) as Optional<ListItem>
++            }.onErrorReturn {
++                Optional.empty()
++            }.flatMap { optionalItem ->
++                optionalItem.map({
++                    listService.remove(it)
++                }).getOrElse(Single.just(Unit))
++            }.flatMap {
++                listService.add(ListItemImpl(newId, name, quantity))
++            }.subscribe({
++                list.value = listOf(AndroidListItem(ListItemImpl(newId, name, quantity), true)) + (list.value ?: emptyList())
++            }, {
++                // TODO: LiveData for errors
++            }))
++
+     }
+ 
+     fun removeItem(id: Int) {
+-        list.value  = list.value.orEmpty() - ((list.value?: emptyList()).single { item -> item.id == id })
++        disposable.add(listService.find(id).flatMap {
++            listService.remove(it)
++        }.subscribe({
++            list.value = list.value.orEmpty() - ((list.value ?: emptyList()).single { item -> item.id == id })
++        }, {
++           // TODO: Err
++        }))
+     }
+ 
+ 
+     fun changeName(id: Int, newName: String) {
++        list.value.orEmpty().indexOf(list.value.orEmpty().single{ it.id == id }).let {
++            val oldItem = if (it == -1) return@let null else list.value.orEmpty()[it].item
++            val newItem = ListItemImpl(oldItem.id, newName, oldItem.quantity)
++
++            listService.remove(oldItem).flatMap {
++                listService.add(newItem)
++            }.map {
++                list.value
++            }
++        }
+         val replaceAtIndex = list.value.orEmpty().indexOf(list.value.orEmpty().single { it.id == id })
+-        list.value = list.value.orEmpty().splice(replaceAtIndex, 1,
+-                listOf(DataListItem(
+-                    list.value.orEmpty()[replaceAtIndex].id,
+-                    newName,
+-                    list.value.orEmpty()[replaceAtIndex].quantity,
++        list.value = list.value.orEmpty().splice(
++            replaceAtIndex, 1,
++            listOf(
++                AndroidListItem(
++                    ListItemImpl(
++                        list.value.orEmpty()[replaceAtIndex].id,
++                        newName,
++                        list.value.orEmpty()[replaceAtIndex].quantity
++                    ),
+                     true
+-                )))
++                )
++            )
++        )
+     }
+ 
+     fun changeQuantity(id: Int, newQuantity: Int) {
+         val replaceAtIndex = list.value.orEmpty().indexOf(list.value.orEmpty().single { it.id == id })
+-        list.value = list.value.orEmpty().splice(replaceAtIndex, 1,
+-                listOf(DataListItem(
+-                    list.value.orEmpty()[replaceAtIndex].id,
+-                    list.value.orEmpty()[replaceAtIndex].name,
+-                    newQuantity,
++        list.value = list.value.orEmpty().splice(
++            replaceAtIndex, 1,
++            listOf(
++                AndroidListItem(
++                    ListItemImpl(
++                        list.value.orEmpty()[replaceAtIndex].id,
++                        list.value.orEmpty()[replaceAtIndex].name,
++                        newQuantity
++                    ),
+                     true
+-                )))
++                )
++            )
++        )
++    }
++
++    override fun onCleared() {
++        super.onCleared()
++        disposable.dispose()
+     }
+ }
+\ No newline at end of file
