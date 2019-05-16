@@ -8,7 +8,7 @@
 
         <variable
             name="item"
-            type="tk.jonathancowling.inventorytracker.listclient.models.Item" />
+            type="tk.jonathancowling.inventorytracker.clients.list.models.Item" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,7 +23,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:text="@{item.id}"
+            android:text="@{item.shortId()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/textView3"
             app:layout_constraintHorizontal_chainStyle="spread_inside"

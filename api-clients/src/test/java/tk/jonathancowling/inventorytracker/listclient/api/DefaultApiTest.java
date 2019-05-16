@@ -1,9 +1,10 @@
 package tk.jonathancowling.inventorytracker.listclient.api;
 
-import tk.jonathancowling.inventorytracker.listclient.ApiClient;
-import tk.jonathancowling.inventorytracker.listclient.model.Item;
-import tk.jonathancowling.inventorytracker.listclient.model.ItemPrototype;
-import tk.jonathancowling.inventorytracker.listclient.model.PartialItem;
+import tk.jonathancowling.inventorytracker.clients.list.ApiClient;
+import tk.jonathancowling.inventorytracker.clients.list.api.DefaultApi;
+import tk.jonathancowling.inventorytracker.clients.list.models.Item;
+import tk.jonathancowling.inventorytracker.clients.list.models.ItemPrototype;
+import tk.jonathancowling.inventorytracker.clients.list.models.PartialItem;
 import org.junit.Before;
 import org.junit.Test;
 

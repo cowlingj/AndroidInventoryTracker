@@ -11,7 +11,7 @@
  */
 
 
-package tk.jonathancowling.inventorytracker.listclient.models
+package tk.jonathancowling.inventorytracker.clients.list.models
 
 import java.util.Objects
 

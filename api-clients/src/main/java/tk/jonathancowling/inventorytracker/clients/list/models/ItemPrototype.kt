@@ -1,8 +1,8 @@
-package tk.jonathancowling.inventorytracker.listclient.models
+package tk.jonathancowling.inventorytracker.clients.list.models
 
 import java.util.Objects
 
-open class Item(val id: String, val name: String, val quantity: Int) {
+class ItemPrototype(val name: String, val quantity: Int) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -14,7 +14,7 @@ open class Item(val id: String, val name: String, val quantity: Int) {
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(id, name, quantity)
+        return Objects.hash(name, quantity)
     }
 }
 

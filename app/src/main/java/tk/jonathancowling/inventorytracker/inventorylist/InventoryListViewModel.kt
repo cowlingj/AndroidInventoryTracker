@@ -3,13 +3,15 @@ package tk.jonathancowling.inventorytracker.inventorylist
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import tk.jonathancowling.inventorytracker.listclient.models.Item
+import androidx.paging.PagedList
+import io.reactivex.Observable
+import tk.jonathancowling.inventorytracker.clients.list.models.Item
 
 class InventoryListViewModel(private val listService: InventoryListService) : ViewModel() {
 
-    fun getData(): LiveData<out List<Item>> = listService.inventoryList
+    fun getErrors(): LiveData<out Throwable> = listService.errors
 
-    val pager by lazy { listService.pager(10) }
+    fun getData(): LiveData<out PagedList<Item>> = listService.inventoryList
 
     fun addItem(name: String, quantity: Int) = listService.add(name, quantity)
 

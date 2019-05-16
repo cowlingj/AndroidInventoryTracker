@@ -11,17 +11,23 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
+import androidx.paging.PagedList
+import androidx.paging.PagedListAdapter
+import androidx.paging.RxPagedListBuilder
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
-import io.reactivex.disposables.Disposable
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.inventory_list_content.*
 import tk.jonathancowling.inventorytracker.R
 import tk.jonathancowling.inventorytracker.authentication.services.FirebaseAuthService
 import tk.jonathancowling.inventorytracker.communications.AndroidStringFetcher
 import tk.jonathancowling.inventorytracker.communications.CommunicationsChannelManager
 import tk.jonathancowling.inventorytracker.databinding.InventoryListItemBinding
-import tk.jonathancowling.inventorytracker.listclient.models.Item
+import tk.jonathancowling.inventorytracker.clients.list.models.Item
+import tk.jonathancowling.inventorytracker.util.AutoDisposable
 
 class AndroidView : Fragment() {
 
@@ -58,52 +64,35 @@ class AndroidView : Fragment() {
 
         val vm = ViewModelProviders.of(
             activity!!,
-            InventoryListViewModel.Factory(LocalInventoryListService())
+            InventoryListViewModel.Factory(ApiInventoryListService())
         ).get(InventoryListViewModel::class.java)
-
-        var data: List<Item> = emptyList()
 
         fab.setOnClickListener {
             findNavController().navigate(R.id.action_inventory_list_to_add_item)
         }
 
-        val adapter = object : RecyclerView.Adapter<ListItemHolder>() {
-            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-                ListItemHolder(
+        val adapter : PagedListAdapter<Item, ListItemHolder> = object : PagedListAdapter<Item, ListItemHolder>(object : DiffUtil.ItemCallback<Item>(){
+            override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean =
+                oldItem.id == newItem.id
+
+
+            override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean =
+                oldItem == newItem
+
+        }){
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListItemHolder {
+                return ListItemHolder(
                     InventoryListItemBinding.inflate(
                         layoutInflater,
                         parent,
                         false
                     )
                 )
-
-            override fun getItemCount() = data.size
-
-            override fun onBindViewHolder(vh: ListItemHolder, i: Int) {
-                vh.binding.item = data[i]
-                if (isOnLastPage(i, vh.binding.root.height)) {
-                    vm.pager.subscribe(object : io.reactivex.Observer<Unit> {
-                        override fun onComplete() {
-                            Log.d(this::class.java.simpleName, "loaded more stuffs")
-                        }
-
-                        override fun onSubscribe(d: Disposable) {
-                        }
-
-                        override fun onNext(t: Unit) {
-                        }
-
-                        override fun onError(e: Throwable) {
-                        }
-
-                    })
-                }
             }
 
-            fun isOnLastPage(itemAt: Int, itemHeight: Int) =
-                itemHeight == 0 || activity?.let {
-                    itemCount - itemAt < (it.window.decorView.height / itemHeight)
-                } ?: false
+            override fun onBindViewHolder(vh: ListItemHolder, i: Int) {
+                vh.binding.item = getItem(i)
+            }
         }
 
         inventory_list.addItemDecoration(object : RecyclerView.ItemDecoration() {
@@ -118,13 +107,18 @@ class AndroidView : Fragment() {
                 }
             }
         })
+
         inventory_list.adapter = adapter
         inventory_list.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
 
-        vm.getData().observe(this, Observer {
-            data = it
-            adapter.notifyDataSetChanged()
+        vm.getErrors().observe(this, Observer {
+            Snackbar.make(view, "get items failed", Snackbar.LENGTH_INDEFINITE).show()
         })
+
+        vm.getData().observe(this, Observer {
+            adapter.submitList(it)
+        })
+
         setHasOptionsMenu(true)
     }
 

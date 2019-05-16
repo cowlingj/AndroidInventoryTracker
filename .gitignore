@@ -13,3 +13,5 @@
 /captures
 .externalNativeBuild
 google-services.json
+secrets/
+api-clients/bild

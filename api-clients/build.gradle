@@ -4,12 +4,17 @@ buildscript {
     }
     dependencies {
         classpath "org.openapitools:openapi-generator-gradle-plugin:3.3.4"
+        classpath 'com.google.code.gson:gson:2.8.5'
     }
 }
+
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 plugins {
     id "java-library"
     id 'kotlin'
+    id 'de.fuerstenau.buildconfig' version '1.1.8'
 }
 
 apply plugin: 'org.openapi.generator'
@@ -37,15 +42,27 @@ dependencies {
     compile ("org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:$rootProject.ext.oltu_version"){
         exclude group:'org.apache.oltu.oauth2' , module: 'org.apache.oltu.oauth2.common'
     }
+    compile 'org.yaml:snakeyaml:1.24'
     compile "io.gsonfire:gson-fire:$rootProject.ext.json_fire_version"
     compile "org.threeten:threetenbp:$rootProject.ext.threetenbp_version"
     testCompile "junit:junit:$rootProject.ext.junit_version"
 }
 
+buildConfig {
+
+    def config = new Gson()
+            .fromJson(new FileReader("$projectDir/build-config/secrets/list-client.json"),
+            new TypeToken<Map<String,Object>>(){}.getType())
+
+    buildConfigField 'String', 'BASE_URL', "${config.get("baseUrl")}/"
+    buildConfigField 'String', 'API_KEY_NAME', "${config.get("authName")}"
+    buildConfigField 'String', 'API_KEY_VALUE', "${config.get("apiKey")}"
+}
+
 openApiGenerate {
     generatorName = "java"
-    outputDir = "listclient"
-    inputSpec = "${projectDir.name}/api/api.yml"
+    outputDir = "${projectDir}"
+    inputSpec = "${projectDir}/api/api.yml"
     configOptions = [
             sourceFolder: "build/generated/source/api/main/java",
             useRxJava2: true,
@@ -61,9 +78,9 @@ openApiGenerate {
     ]
 
     library = "retrofit2"
-    modelPackage = "tk.jonathancowling.inventorytracker.listclient.models"
-    apiPackage = "tk.jonathancowling.inventorytracker.listclient.api"
-    invokerPackage = "tk.jonathancowling.inventorytracker.listclient"
+    modelPackage = "tk.jonathancowling.inventorytracker.clients.list.models"
+    apiPackage = "tk.jonathancowling.inventorytracker.clients.list.api"
+    invokerPackage = "tk.jonathancowling.inventorytracker.clients.list"
     groupId = "tk.jonathancowling"
     id = "inventorytracker-listclient"
     version = "0.0.1"
@@ -78,4 +95,6 @@ task compileGenerated {
     project.delete(files("${projectDir}/gradle"))
 }
 
-compileJava.dependsOn tasks.openApiGenerate, compileGenerated
+tasks.compileGenerated.dependsOn tasks.openApiGenerate
+compileJava.dependsOn tasks.compileGenerated
+compileKotlin.dependsOn tasks.compileGenerated

@@ -1,95 +1,116 @@
 package tk.jonathancowling.inventorytracker.inventorylist
 
-import androidx.lifecycle.LiveData
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import io.reactivex.ObservableSource
+import androidx.paging.DataSource
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PageKeyedDataSource
+import io.reactivex.Observable
 import io.reactivex.Single
-import tk.jonathancowling.inventorytracker.BuildConfig
-import tk.jonathancowling.inventorytracker.listclient.ApiClient
-import tk.jonathancowling.inventorytracker.listclient.api.DefaultApi
-import tk.jonathancowling.inventorytracker.listclient.models.Item
-import tk.jonathancowling.inventorytracker.listclient.models.ItemPrototype
-import tk.jonathancowling.inventorytracker.listclient.models.PartialItem
-import tk.jonathancowling.inventorytracker.util.mapIndexedToPairs
-import tk.jonathancowling.inventorytracker.util.splice
+import io.reactivex.disposables.CompositeDisposable
+import tk.jonathancowling.inventorytracker.clients.list.Client
+import tk.jonathancowling.inventorytracker.clients.list.api.DefaultApi
+import tk.jonathancowling.inventorytracker.clients.list.models.Item
+import tk.jonathancowling.inventorytracker.clients.list.models.ItemPrototype
+import tk.jonathancowling.inventorytracker.clients.list.models.PartialItem
+import tk.jonathancowling.inventorytracker.util.AutoDisposable
+import tk.jonathancowling.inventorytracker.util.rx.ApiCallConfig
+import java.io.IOException
 
 class ApiInventoryListService : InventoryListService {
 
-    private val listClient = ApiClient().setApiKey(BuildConfig.API_KEY).apply {
-        this.adapterBuilder.baseUrl(BuildConfig.API_KEY)
-    }.createService(DefaultApi::class.java)
+    private val listClient = Client().createService(DefaultApi::class.java)
+    private val apiCallConfig = ApiCallConfig()
 
-    private val internal: MutableLiveData<out List<Item>> = MutableLiveData()
-    override val inventoryList: LiveData<out List<Item>> = internal
+    override val errors = MutableLiveData<Throwable>()
+
+    private lateinit var dataSrc: InventoryListDataSource
+
+    inner class InventoryListDataSource : PageKeyedDataSource<String, Item>() {
+
+        private val disposable: CompositeDisposable by AutoDisposable.Composite()
+
+        override fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
+            disposable.clear()
+            super.addInvalidatedCallback(onInvalidatedCallback)
+        }
+
+        override fun loadInitial(
+            params: LoadInitialParams<String>,
+            callback: LoadInitialCallback<String, Item>
+        ) {
+            disposable.add(get(null, params.requestedLoadSize)
+                .subscribe({
+                    callback.onResult(it, null, null)
+                },{
+                    Log.w("API", "failed to get initial list ${it.message}")
+                    errors.value = IOException()
+                    callback.onResult(emptyList(), null, null)
+                }))
+        }
+
+        override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, Item>) {
+            disposable.add(get(params.key, params.requestedLoadSize)
+                .subscribe({
+                    callback.onResult(it, null)
+                },{
+                    Log.w("API", "failed to get after on list ${it.message}")
+                    errors.value = IOException()
+                    callback.onResult(emptyList(), null)
+                }))
+        }
+
+        override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String, Item>) {}
+    }
+
+    override val inventoryList = LivePagedListBuilder<String, Item>(
+        object : DataSource.Factory<String, Item>() {
+            override fun create(): DataSource<String, Item> = InventoryListDataSource()
+                .apply { dataSrc = this }
+        }, 20)
+        .setInitialLoadKey(null)
+        .build()
 
     override fun add(name: String, quantity: Int): Single<out Item> {
-        return listClient.listPost(ItemPrototype(name, quantity)).map {
-            internal.value = listOf(it) + internal.value.orEmpty()
-            it
-        }.singleOrError()
+        return Observable.just(Unit)
+            .compose(apiCallConfig.apply(listClient.listPost(ItemPrototype(name, quantity))))
+            .doOnNext { dataSrc.invalidate() }
+            .singleOrError()
     }
 
     override fun remove(id: String): Single<out Item> {
-        return listClient.listDelete(id).singleOrError().doOnSuccess{
-            internal.value = internal.value.orEmpty() - it
-        }
+        return Observable.just(Unit)
+            .compose(apiCallConfig.apply(listClient.listDelete(id)))
+            .doOnNext { dataSrc.invalidate() }
+            .singleOrError()
     }
 
     override fun find(id: String): Single<out Item> {
+
         TODO()
     }
 
-    override fun pager(pageSize: Int): ObservableSource<Unit> {
-        return ObservableSource { ob ->
-            listClient.listGet(null, null)
-                .singleOrError()
-                .doOnSuccess { internal.value = it }
-                .subscribe({
-                    ob.onNext(Unit)
-                    ob.onComplete()
-                }, {
-                    ob.onError(it)
-                })
-        }
-    }
-
-    override fun all(): Single<Unit> {
-        return listClient.listGet(null, null).map {
-            internal.value = it
-            Unit
-        }.singleOrError()
-    }
+    private fun get(from: String?, limit: Int?) = Observable.just(Unit)
+        .compose(apiCallConfig.apply(listClient.listGet(from, limit)))
 
     override fun changeName(id: String, newName: String): Single<out Item> {
-        return listClient.listPut(PartialItem(id, newName, null)).singleOrError()
-            .map { item ->
-                val i = internal
-                    .value
-                    .orEmpty()
-                    .mapIndexedToPairs()
-                    .single { it.second.id == id }
-                    .first
-                internal.value = internal.value.orEmpty().splice(i, 1, listOf(item))
-                item
-            }
+        return Observable.just(Unit)
+            .compose(
+                apiCallConfig.apply(listClient.listPut(PartialItem(id, newName, null)))
+            )
+            .doOnNext { dataSrc.invalidate() }
+            .singleOrError()
     }
 
     override fun changeQuantity(id: String, newQuantity: Int): Single<out Item> {
-        return listClient.listPut(
-            PartialItem(
-                id,
-                null,
-                newQuantity
+        return Observable.just(Unit)
+            .compose(
+                apiCallConfig.apply(
+                    listClient.listPut(PartialItem(id, null, newQuantity))
+                )
             )
-        ).singleOrError()
-            .doOnSuccess { item ->
-                val i = internal
-                    .value
-                    .orEmpty()
-                    .mapIndexedToPairs()
-                    .single { it.second.id == id }
-                    .first
-                internal.value = internal.value.orEmpty().splice(i, 1, listOf(item))
-            }
+            .doOnNext { dataSrc.invalidate() }
+            .singleOrError()
+
     }
 }

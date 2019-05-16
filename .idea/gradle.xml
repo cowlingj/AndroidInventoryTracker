@@ -9,8 +9,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/api-clients" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/listclient" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

@@ -12,12 +12,12 @@ import android.view.inputmethod.InputMethodManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.add_item_fragment.*
 
 import tk.jonathancowling.inventorytracker.databinding.AddItemFragmentBinding
 import tk.jonathancowling.inventorytracker.inventorylist.ApiInventoryListService
-import tk.jonathancowling.inventorytracker.inventorylist.LocalInventoryListService
 import tk.jonathancowling.inventorytracker.inventorylist.InventoryListViewModel
 import tk.jonathancowling.inventorytracker.util.AutoDisposable
 
@@ -45,10 +45,7 @@ class AndroidView : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        vm.data.observe(this, Observer {
-            Log.i("BUTTON", "enabled: ${vm.isValid()}")
-            add_item_add_button.isEnabled = vm.isValid()
-        })
+        vm.data.observe(this, Observer { add_item_add_button.isEnabled = vm.isValid() })
 
         add_item_add_button.setOnClickListener {
 
@@ -58,16 +55,25 @@ class AndroidView : Fragment() {
             vm.validate({ name, quantity ->
                 ViewModelProviders.of(
                     activity!!,
-                    InventoryListViewModel.Factory(LocalInventoryListService())
+                    InventoryListViewModel.Factory(ApiInventoryListService())
                 ).get(InventoryListViewModel::class.java).let {
                     var hasBeenCalled = false
-                    it.getData().observe(this, Observer {
+                    it.getErrors().observe(this, Observer {
+                        Snackbar.make(view, "add item failed", Snackbar.LENGTH_SHORT).show()
+                    })
+
+                    it.getData().observe(this, Observer { items ->
+                        Log.d("ADD_ITEM_VIEW", "observe triggered ${items.size}")
                         if (hasBeenCalled) {
                             findNavController().navigateUp()
                         }
                         hasBeenCalled = true
                     })
-                    disposable.add(it.addItem(name, quantity).subscribe({}, {}))
+                    disposable.add(it.addItem(name, quantity).subscribe({ item ->
+                        Log.d("VIEW", "item added $item")
+                    }, { e ->
+                        Log.e("VIEW", "error adding item $e")
+                    }))
                 }
             })
         }

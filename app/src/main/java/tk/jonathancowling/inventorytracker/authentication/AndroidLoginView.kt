@@ -40,10 +40,13 @@ class AndroidLoginView : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        activity?.onBackPressedDispatcher?.addCallback(this, OnBackPressedCallback {
-            Snackbar.make(view, "please login to continue", Snackbar.LENGTH_SHORT).show()
-            true
+        activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Snackbar.make(view, "please login to continue", Snackbar.LENGTH_SHORT).show()
+            }
         })
+
+//        activity?.onBackPressedDispatcher?.addCallback(this, object : )
 
         view.login_button_login.setOnClickListener {
             vm.validate().flatMap { model ->
