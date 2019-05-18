@@ -13,7 +13,7 @@ Method | HTTP request | Description
 
 <a name="listDelete"></a>
 # **listDelete**
-> Item listDelete(item)
+> tk.jonathancowling.inventorytracker.clients.list.models.Item listDelete(item)
 
 
 
@@ -39,7 +39,7 @@ ApiKey.setApiKey("YOUR API KEY");
 DefaultApi apiInstance = new DefaultApi();
 String item = "item_example"; // String | 
 try {
-    Item result = apiInstance.listDelete(item);
+    tk.jonathancowling.inventorytracker.clients.list.models.Item result = apiInstance.listDelete(item);
     System.out.println(result);
 } catch (ApiException e) {
     System.err.println("Exception when calling DefaultApi#listDelete");
@@ -55,7 +55,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Item**](Item.md)
+[**tk.jonathancowling.inventorytracker.clients.list.models.Item**](tk.jonathancowling.inventorytracker.clients.list.models.Item.md)
 
 ### Authorization
 
@@ -68,7 +68,7 @@ Name | Type | Description  | Notes
 
 <a name="listGet"></a>
 # **listGet**
-> List&lt;Item&gt; listGet(from, limit)
+> InlineResponse200 listGet(from, limit)
 
 
 
@@ -95,7 +95,7 @@ DefaultApi apiInstance = new DefaultApi();
 String from = "from_example"; // String | get items from this offset
 Integer limit = 25; // Integer | limits the number of items returned
 try {
-    List<Item> result = apiInstance.listGet(from, limit);
+    InlineResponse200 result = apiInstance.listGet(from, limit);
     System.out.println(result);
 } catch (ApiException e) {
     System.err.println("Exception when calling DefaultApi#listGet");
@@ -112,7 +112,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**List&lt;Item&gt;**](Item.md)
+[**InlineResponse200**](InlineResponse200.md)
 
 ### Authorization
 
@@ -125,7 +125,7 @@ Name | Type | Description  | Notes
 
 <a name="listPost"></a>
 # **listPost**
-> Item listPost(itemPrototype)
+> tk.jonathancowling.inventorytracker.clients.list.models.Item listPost(tkJonathancowlingInventorytrackerClientsListModelsItemPrototype)
 
 
 
@@ -149,9 +149,9 @@ ApiKey.setApiKey("YOUR API KEY");
 //ApiKey.setApiKeyPrefix("Token");
 
 DefaultApi apiInstance = new DefaultApi();
-ItemPrototype itemPrototype = new ItemPrototype(); // ItemPrototype | 
+tk.jonathancowling.inventorytracker.clients.list.models.ItemPrototype tkJonathancowlingInventorytrackerClientsListModelsItemPrototype = new tk.jonathancowling.inventorytracker.clients.list.models.ItemPrototype(); // tk.jonathancowling.inventorytracker.clients.list.models.ItemPrototype | 
 try {
-    Item result = apiInstance.listPost(itemPrototype);
+    tk.jonathancowling.inventorytracker.clients.list.models.Item result = apiInstance.listPost(tkJonathancowlingInventorytrackerClientsListModelsItemPrototype);
     System.out.println(result);
 } catch (ApiException e) {
     System.err.println("Exception when calling DefaultApi#listPost");
@@ -163,11 +163,11 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **itemPrototype** | [**ItemPrototype**](ItemPrototype.md)|  |
+ **tkJonathancowlingInventorytrackerClientsListModelsItemPrototype** | [**tk.jonathancowling.inventorytracker.clients.list.models.ItemPrototype**](tk.jonathancowling.inventorytracker.clients.list.models.ItemPrototype.md)|  |
 
 ### Return type
 
-[**Item**](Item.md)
+[**tk.jonathancowling.inventorytracker.clients.list.models.Item**](tk.jonathancowling.inventorytracker.clients.list.models.Item.md)
 
 ### Authorization
 
@@ -180,7 +180,7 @@ Name | Type | Description  | Notes
 
 <a name="listPut"></a>
 # **listPut**
-> Item listPut(partialItem)
+> tk.jonathancowling.inventorytracker.clients.list.models.Item listPut(tkJonathancowlingInventorytrackerClientsListModelsPartialItem)
 
 
 
@@ -204,9 +204,9 @@ ApiKey.setApiKey("YOUR API KEY");
 //ApiKey.setApiKeyPrefix("Token");
 
 DefaultApi apiInstance = new DefaultApi();
-PartialItem partialItem = new PartialItem(); // PartialItem | 
+tk.jonathancowling.inventorytracker.clients.list.models.PartialItem tkJonathancowlingInventorytrackerClientsListModelsPartialItem = new tk.jonathancowling.inventorytracker.clients.list.models.PartialItem(); // tk.jonathancowling.inventorytracker.clients.list.models.PartialItem | 
 try {
-    Item result = apiInstance.listPut(partialItem);
+    tk.jonathancowling.inventorytracker.clients.list.models.Item result = apiInstance.listPut(tkJonathancowlingInventorytrackerClientsListModelsPartialItem);
     System.out.println(result);
 } catch (ApiException e) {
     System.err.println("Exception when calling DefaultApi#listPut");
@@ -218,11 +218,11 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **partialItem** | [**PartialItem**](PartialItem.md)|  | [optional]
+ **tkJonathancowlingInventorytrackerClientsListModelsPartialItem** | [**tk.jonathancowling.inventorytracker.clients.list.models.PartialItem**](tk.jonathancowling.inventorytracker.clients.list.models.PartialItem.md)|  | [optional]
 
 ### Return type
 
-[**Item**](Item.md)
+[**tk.jonathancowling.inventorytracker.clients.list.models.Item**](tk.jonathancowling.inventorytracker.clients.list.models.Item.md)
 
 ### Authorization
 

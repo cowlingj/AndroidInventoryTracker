@@ -51,7 +51,7 @@ dependencies {
 buildConfig {
 
     def config = new Gson()
-            .fromJson(new FileReader("$projectDir/build-config/secrets/list-client.json"),
+            .fromJson(new FileReader("$projectDir/build-config/secrets/list_client.json"),
             new TypeToken<Map<String,Object>>(){}.getType())
 
     buildConfigField 'String', 'BASE_URL', "${config.get("baseUrl")}/"
@@ -72,7 +72,7 @@ openApiGenerate {
     ]
     systemProperties = [
             modelDocs: "false",
-            models: "false",
+            models: "",
             apis: "",
             supportingFiles: ""
     ]
@@ -83,6 +83,12 @@ openApiGenerate {
     invokerPackage = "tk.jonathancowling.inventorytracker.clients.list"
     groupId = "tk.jonathancowling"
     id = "inventorytracker-listclient"
+    importMappings = [
+            Item: "tk.jonathancowling.inventorytracker.clients.list.models.Item",
+            ItemPrototype: "tk.jonathancowling.inventorytracker.clients.list.models.ItemPrototype",
+            PartialItem: "tk.jonathancowling.inventorytracker.clients.list.models.PartialItem",
+            NoApiKey: "tk.jonathancowling.inventorytracker.clients.list.models.NoApiKey"
+    ]
     version = "0.0.1"
 }
 

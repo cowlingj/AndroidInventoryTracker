@@ -41,7 +41,7 @@ class ApiInventoryListService : InventoryListService {
         ) {
             disposable.add(get(null, params.requestedLoadSize)
                 .subscribe({
-                    callback.onResult(it, null, null)
+                    callback.onResult(it.items, null, it.next)
                 },{
                     Log.w("API", "failed to get initial list ${it.message}")
                     errors.value = IOException()
@@ -52,7 +52,7 @@ class ApiInventoryListService : InventoryListService {
         override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, Item>) {
             disposable.add(get(params.key, params.requestedLoadSize)
                 .subscribe({
-                    callback.onResult(it, null)
+                    callback.onResult(it.items, it.next)
                 },{
                     Log.w("API", "failed to get after on list ${it.message}")
                     errors.value = IOException()

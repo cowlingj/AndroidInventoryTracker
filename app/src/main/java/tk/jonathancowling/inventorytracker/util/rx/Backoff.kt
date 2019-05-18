@@ -13,7 +13,7 @@ open class Backoff<EventT>(
     override fun apply(upstream: Observable<EventT>): ObservableSource<EventT> {
         return upstream.retryWhen {
             it.zipWith<Long, Long>(
-                Observable.rangeLong(0, maxRetries),
+                Observable.rangeLong(0, maxRetries + 1),
                 BiFunction { e: Throwable, retries: Long ->
                     if (retries >= maxRetries) {
                         throw e
