@@ -6,6 +6,7 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**listDelete**](DefaultApi.md#listDelete) | **DELETE** list | 
 [**listGet**](DefaultApi.md#listGet) | **GET** list | 
+[**listIdGet**](DefaultApi.md#listIdGet) | **GET** list/{id} | 
 [**listPost**](DefaultApi.md#listPost) | **POST** list | 
 [**listPut**](DefaultApi.md#listPut) | **PUT** list | 
 [**reportGet**](DefaultApi.md#reportGet) | **GET** report | 
@@ -113,6 +114,61 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**InlineResponse200**](InlineResponse200.md)
+
+### Authorization
+
+[ApiKey](../README.md#ApiKey)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+<a name="listIdGet"></a>
+# **listIdGet**
+> tk.jonathancowling.inventorytracker.clients.list.models.Item listIdGet(id)
+
+
+
+returns a single item
+
+### Example
+```java
+// Import classes:
+//import tk.jonathancowling.inventorytracker.clients.list.ApiClient;
+//import tk.jonathancowling.inventorytracker.clients.list.ApiException;
+//import tk.jonathancowling.inventorytracker.clients.list.Configuration;
+//import tk.jonathancowling.inventorytracker.clients.list.auth.*;
+//import tk.jonathancowling.inventorytracker.clients.list.api.DefaultApi;
+
+ApiClient defaultClient = Configuration.getDefaultApiClient();
+
+// Configure API key authorization: ApiKey
+ApiKeyAuth ApiKey = (ApiKeyAuth) defaultClient.getAuthentication("ApiKey");
+ApiKey.setApiKey("YOUR API KEY");
+// Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+//ApiKey.setApiKeyPrefix("Token");
+
+DefaultApi apiInstance = new DefaultApi();
+String id = "id_example"; // String | 
+try {
+    tk.jonathancowling.inventorytracker.clients.list.models.Item result = apiInstance.listIdGet(id);
+    System.out.println(result);
+} catch (ApiException e) {
+    System.err.println("Exception when calling DefaultApi#listIdGet");
+    e.printStackTrace();
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **String**|  |
+
+### Return type
+
+[**tk.jonathancowling.inventorytracker.clients.list.models.Item**](tk.jonathancowling.inventorytracker.clients.list.models.Item.md)
 
 ### Authorization
 

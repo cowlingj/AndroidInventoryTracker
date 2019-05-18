@@ -85,10 +85,9 @@ class ApiInventoryListService : InventoryListService {
             .singleOrError()
     }
 
-    override fun find(id: String): Single<out Item> {
-
-        TODO()
-    }
+    override fun find(id: String): Single<out Item> = Observable.just(Unit)
+        .compose(apiCallConfig.apply(listClient.listIdGet(id)))
+        .singleOrError()
 
     private fun get(from: String?, limit: Int?) = Observable.just(Unit)
         .compose(apiCallConfig.apply(listClient.listGet(from, limit)))
