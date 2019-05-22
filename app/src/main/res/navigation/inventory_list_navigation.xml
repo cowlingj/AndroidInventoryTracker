@@ -50,7 +50,6 @@
     </fragment>
     <fragment
         android:id="@+id/settings_destination"
-        android:name="tk.jonathancowling.inventorytracker.settings.AndroidView"
-        android:label="Settings"
-        tools:layout="@layout/settings_fragment" />
+        android:name="tk.jonathancowling.inventorytracker.settings.SettingsView"
+        android:label="Settings" />
 </navigation>

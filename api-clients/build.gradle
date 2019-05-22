@@ -8,9 +8,6 @@ buildscript {
     }
 }
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-
 plugins {
     id "java-library"
     id 'kotlin'
@@ -50,13 +47,7 @@ dependencies {
 
 buildConfig {
 
-    def config = new Gson()
-            .fromJson(new FileReader("$projectDir/build-config/secrets/list_client.json"),
-            new TypeToken<Map<String,Object>>(){}.getType())
-
-    buildConfigField 'String', 'BASE_URL', "${config.get("baseUrl")}/"
-    buildConfigField 'String', 'API_KEY_NAME', "${config.get("authName")}"
-    buildConfigField 'String', 'API_KEY_VALUE', "${config.get("apiKey")}"
+    buildConfigField 'String', 'API_KEY_NAME', "ApiKey"
 }
 
 openApiGenerate {

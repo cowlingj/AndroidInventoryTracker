@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="useCloudSync"
+        android:summary="Backup inventory in the cloud"
+        android:title="Use Cloud Sync" />
+    <EditTextPreference
+        android:dependency="useCloudSync"
+        android:key="baseUrl"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:summary="The url for cloud sync"
+        android:title="Cloud Sync Url" />
+    <EditTextPreference
+        android:dependency="useCloudSync"
+        android:key="apiKey"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:summary="The password used for secure cloud sync"
+        android:title="Cloud Sync Password" />
+</PreferenceScreen>

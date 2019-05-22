@@ -4,26 +4,26 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import io.reactivex.Single
 import io.reactivex.SingleOperator
-import tk.jonathancowling.inventorytracker.authentication.services.AuthService
-import tk.jonathancowling.inventorytracker.util.Optional
+import io.reactivex.disposables.Disposable
+import io.reactivex.subjects.BehaviorSubject
 
-class FirebaseAuthService(private val auth: FirebaseAuth) :
+internal class FirebaseAuthService(private val auth: FirebaseAuth) :
     AuthService<FirebaseAuth, FirebaseUser> {
 
-    override fun login(authMechanism: SingleOperator<Unit, FirebaseAuth>) =
-        Single.just(auth).lift(authMechanism)
+    override val authState = BehaviorSubject
+        .create<AuthService.AuthState<FirebaseUser>>()
 
-    override fun logout(authMechanism: SingleOperator<Unit, FirebaseAuth>) =
-        Single.just(auth).lift(authMechanism)
+    init {
+        auth.currentUser
+            ?.let { authState.onNext(AuthService.AuthState.Authenticated(it)) }
+            ?: let { authState.onNext(AuthService.AuthState.Unauthenticated()) }
+    }
 
-    override fun signUp(authMechanism: SingleOperator<Unit, FirebaseAuth>) =
-        Single.just(auth).lift(authMechanism)
-
-    override fun isLoggedIn() = auth.currentUser != null
-
-    override fun withUser() = Optional.ofNullable(auth.currentUser)
-
-    class Factory {
-        fun create() = FirebaseAuthService(FirebaseAuth.getInstance())
+    override fun changeAuthState(authMechanism: SingleOperator<AuthService.AuthState<FirebaseUser>, FirebaseAuth>): Disposable {
+        return Single.just(auth).lift(authMechanism).subscribe({
+            authState.onNext(it)
+        }, {
+            authState.onNext(AuthService.AuthState.Unauthenticated())
+        })
     }
 }

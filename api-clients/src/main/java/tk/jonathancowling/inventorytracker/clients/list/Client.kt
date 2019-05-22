@@ -1,10 +1,9 @@
 package tk.jonathancowling.inventorytracker.clients.list
 
 import tk.jonathancowling.BuildConfig
-import tk.jonathancowling.inventorytracker.clients.list.ApiClient
 
-class Client : ApiClient(BuildConfig.API_KEY_NAME, BuildConfig.API_KEY_VALUE) {
+class Client(baseUrl: String, apiKey: String) : ApiClient(BuildConfig.API_KEY_NAME, apiKey) {
     init {
-        super.getAdapterBuilder().baseUrl(BuildConfig.BASE_URL)
+        super.getAdapterBuilder().baseUrl(baseUrl)
     }
 }

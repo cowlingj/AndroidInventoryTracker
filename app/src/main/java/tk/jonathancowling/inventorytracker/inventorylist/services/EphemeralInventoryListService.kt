@@ -1,28 +1,36 @@
-package tk.jonathancowling.inventorytracker.inventorylist
+package tk.jonathancowling.inventorytracker.inventorylist.services
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.paging.*
+import androidx.paging.DataSource
+import androidx.paging.ItemKeyedDataSource
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import tk.jonathancowling.inventorytracker.clients.list.models.Item
-import tk.jonathancowling.inventorytracker.util.AutoDisposable
+import tk.jonathancowling.inventorytracker.util.Resettable
 import tk.jonathancowling.inventorytracker.util.prepend
+import tk.jonathancowling.inventorytracker.util.rx.AutoCompositeDisposable
 import java.io.IOException
-import java.util.UUID
+import java.util.*
 
-class LocalInventoryListService : InventoryListService {
-
-    private val disposables: CompositeDisposable by AutoDisposable.Composite()
+internal class EphemeralInventoryListService : InventoryListService {
 
     override val errors = MutableLiveData<Throwable>()
 
     private val _inventoryList = mutableListOf<AndroidListItem>()
 
-    private val dataSrc = InventoryListDataSource()
+    private val dataSrc: InventoryListDataSource by Resettable({
+        InventoryListDataSource()
+    }, {
+        it.isInvalid
+    })
 
-    inner class InventoryListDataSource : ItemKeyedDataSource <String, AndroidListItem>() {
+    inner class InventoryListDataSource : ItemKeyedDataSource<String, AndroidListItem>() {
+
+        private val disposables: CompositeDisposable by AutoCompositeDisposable()
 
         override fun getKey(item: AndroidListItem) = item.id
 
@@ -31,9 +39,7 @@ class LocalInventoryListService : InventoryListService {
             callback: LoadInitialCallback<AndroidListItem>
         ) {
             disposables.add(Observable.just(Unit).subscribe({
-                callback.onResult(_inventoryList,
-                    0,
-                    _inventoryList.size)
+                callback.onResult(_inventoryList.take(params.requestedLoadSize))
             }, {
                 errors.value = IOException()
                 callback.onResult(emptyList())
@@ -41,8 +47,15 @@ class LocalInventoryListService : InventoryListService {
         }
 
         override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<AndroidListItem>) {
+            params.requestedLoadSize
             disposables.add(Observable.just(Unit).subscribe({
-                callback.onResult(_inventoryList)
+                val from = _inventoryList.withIndex().single { it.value.id == params.key }.index + 1
+                val to = if (from + params.requestedLoadSize < _inventoryList.size) {
+                    from + params.requestedLoadSize
+                } else {
+                    _inventoryList.size
+                }
+                callback.onResult(_inventoryList.subList(from, to))
             }, {
                 errors.value = IOException()
                 callback.onResult(emptyList())
@@ -96,7 +109,11 @@ class LocalInventoryListService : InventoryListService {
         .mapIndexed { i, item -> Pair(i, item) }
         .single { it.second.id == id && it.second.isInUse }
         .let {
-            _inventoryList[it.first] = AndroidListItem(it.second.id, newName, it.second.quantity)
+            _inventoryList[it.first] = AndroidListItem(
+                it.second.id,
+                newName,
+                it.second.quantity
+            )
             it.second
         }).doOnSuccess { dataSrc.invalidate() }
 
@@ -104,7 +121,16 @@ class LocalInventoryListService : InventoryListService {
         .mapIndexed { i, item -> Pair(i, item) }
         .single { it.second.id == id && it.second.isInUse }
         .let {
-            _inventoryList[it.first] = AndroidListItem(it.second.id, it.second.name, newQuantity)
+            _inventoryList[it.first] = AndroidListItem(
+                it.second.id,
+                it.second.name,
+                newQuantity
+            )
             it.second
         }).doOnSuccess { dataSrc.invalidate() }
+
+    class AndroidListItem(item: Item, var isInUse: Boolean = true) : Item(item.id, item.name, item.quantity) {
+        constructor(id: String, name: String, quantity: Int, isInUse: Boolean = true)
+                : this(Item(id, name, quantity), isInUse)
+    }
 }

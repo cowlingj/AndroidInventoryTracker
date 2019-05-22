@@ -3,6 +3,7 @@ package tk.jonathancowling.inventorytracker.authentication
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import tk.jonathancowling.inventorytracker.BR
+import tk.jonathancowling.inventorytracker.authentication.models.Model
 
 class EmailPasswordObservable : BaseObservable() {
 

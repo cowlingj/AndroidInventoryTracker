@@ -1,9 +1,7 @@
-package tk.jonathancowling.inventorytracker.inventorylist
+package tk.jonathancowling.inventorytracker.inventorylist.services
 
 import androidx.lifecycle.LiveData
 import androidx.paging.PagedList
-import io.reactivex.Observable
-import io.reactivex.ObservableSource
 import io.reactivex.Single
 import tk.jonathancowling.inventorytracker.clients.list.models.Item
 

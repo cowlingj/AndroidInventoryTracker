@@ -4,41 +4,44 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import tk.jonathancowling.inventorytracker.util.TripleState
 import tk.jonathancowling.inventorytracker.util.addOnPropertyChangedCallback
-import java.lang.IllegalStateException
 
 class AddItemViewModel(addItem: AddItemObservable) : ViewModel() {
-    private val model = MutableLiveData<Model>()
-    val data: LiveData<Model> = model
+    private val _data = MutableLiveData<ModelWithValidation>()
+    val data: LiveData<ModelWithValidation> = _data
 
     init {
         addItem.addOnPropertyChangedCallback { sender: AddItemObservable, _: Int ->
-            sender.let {
-                model.value = Model(it.getName(), it.getQuantity())
-            }
+            _data.value = isValid(sender.getName(), sender.getQuantity())
         }
-        model.value = Model(addItem.getName(), addItem.getQuantity())
+        _data.value = isValid(addItem.getName(), addItem.getQuantity())
     }
 
-    fun isValid(): Boolean = (!model.value?.name.isNullOrEmpty() && model.value?.quantity?.isDataState() == true)
+    private fun isValid(name: String, quantity: String): ModelWithValidation {
+        if (name.isEmpty() || name.isBlank()) {
+            return ModelWithValidation.InvalidModel(mapOf("name" to EmptyRequiredField()))
+        }
 
-    fun validate(valid: (name: String, quantity: Int)->Unit, invalid: ()->Unit = {}) {
-            TripleState.fromDataOrEmpty(model.value).transformWithMatchingState({ model ->
-                if (!isValid()) {
-                    throw IllegalStateException()
-                } else {
-                    model.quantity.dataToData { quantity ->
-                        ValidatedModel(model.name, quantity)
-                    }
-                }
-            }).tapWithMatchingState({ valid(it.name, it.quantity) }, { invalid() }, { invalid() })
+        if (quantity.isEmpty() || quantity.isBlank()) {
+           return ModelWithValidation.InvalidModel(mapOf("quantity" to EmptyRequiredField()))
+        }
+
+        return try {
+            ModelWithValidation.ValidModel(name, Integer.parseInt(quantity))
+        } catch (nfe: NumberFormatException) {
+            ModelWithValidation.InvalidModel(mapOf("quantity" to nfe))
+        }
     }
 
-    private data class ValidatedModel(val name: String, val quantity: Int)
+    sealed class ModelWithValidation {
+        data class ValidModel(val name: String, val quantity: Int) : ModelWithValidation()
+        data class InvalidModel(val errors: Map<String, Throwable>) : ModelWithValidation()
+    }
 
     class Factory(private val addItem: AddItemObservable) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel?> create(modelClass: Class<T>) = AddItemViewModel(addItem) as T
     }
+
+    class EmptyRequiredField : Throwable()
 }

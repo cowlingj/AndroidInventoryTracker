@@ -1,13 +1,13 @@
 package tk.jonathancowling.inventorytracker.additem
 
-import androidx.databinding.*
+import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
 import androidx.databinding.library.baseAdapters.BR
-import tk.jonathancowling.inventorytracker.util.TripleState
 
 class AddItemObservable : BaseObservable() {
 
     private var name = ""
-    private var quantity: TripleState<Int> = TripleState.fromEmpty()
+    private var quantity = ""
 
     @Bindable
     fun getName() = name
@@ -23,14 +23,9 @@ class AddItemObservable : BaseObservable() {
     @Bindable
     fun getQuantity() = quantity
 
-    fun setQuantity(quantity: TripleState<Int>) {
+    fun setQuantity(quantity: String) {
 
         if (this.quantity == quantity) {
-            return
-        }
-
-        if (!this.quantity.isErrorState() && quantity.isErrorState()) {
-            notifyPropertyChanged(BR.quantity)
             return
         }
 
