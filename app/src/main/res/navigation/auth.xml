@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/auth"
+    app:startDestination="@id/loading">
+
+    <fragment
+        android:id="@+id/loading"
+        android:name="tk.jonathancowling.inventorytracker.authentication.LoadingView">
+        <action
+            android:id="@+id/loading_to_home"
+            app:destination="@id/inventory_list_navigation" />
+        <action
+            android:id="@+id/loading_to_login"
+            app:destination="@id/login_destination" />
+    </fragment>
+    <fragment
+        android:id="@+id/loggedInContainer"
+        android:name="tk.jonathancowling.inventorytracker.authentication.containers.LoggedInContainer"
+        android:label="LoggedInContainer" >
+        <argument
+            android:name="userScope"
+            app:argType="integer" />
+    </fragment>
+
+    <!--<include app:graph="@navigation/login" />-->
+
+    <!--<fragment-->
+        <!--android:id="@+id/signup_destination"-->
+        <!--android:name="tk.jonathancowling.inventorytracker.authentication.SignupView"-->
+        <!--android:label="auth_sign_up_content" />-->
+    <!--<fragment-->
+        <!--android:id="@+id/login_destination"-->
+        <!--android:name="tk.jonathancowling.inventorytracker.authentication.LoginView"-->
+        <!--android:label="auth_login_content"-->
+        <!--tools:layout="@layout/util_logo_with_card_fragment">-->
+        <!--<action-->
+            <!--android:id="@+id/login_to_signup"-->
+            <!--app:destination="@id/signup_destination" />-->
+    <!--</fragment>-->
+
+    <!--<include app:graph="@navigation/inventory_list_navigation" />-->
+
+    <!--<fragment-->
+        <!--android:id="@+id/home_destination"-->
+        <!--android:name="tk.jonathancowling.inventorytracker.inventorylist.listitems.HomeView"-->
+        <!--android:label="home"-->
+        <!--tools:layout="@layout/inventory_list_content">-->
+        <!--<action-->
+            <!--android:id="@+id/home_to_additem"-->
+            <!--app:destination="@id/additem_destionation" />-->
+        <!--<action-->
+            <!--android:id="@+id/action_inventory_list_to_report"-->
+            <!--app:destination="@id/report_destination" />-->
+        <!--<action-->
+            <!--android:id="@+id/home_to_settings"-->
+            <!--app:destination="@+id/settings_destination" />-->
+    <!--</fragment>-->
+    <!--<fragment-->
+        <!--android:id="@+id/additem_destionation"-->
+        <!--android:name="tk.jonathancowling.inventorytracker.inventorylist.additem.AddItemView"-->
+        <!--android:label="fragment_additem"-->
+        <!--tools:layout="@layout/add_item_fragment" />-->
+    <!--<fragment-->
+        <!--android:id="@+id/report_destination"-->
+        <!--android:name="tk.jonathancowling.inventorytracker.report.AndroidView"-->
+        <!--android:label="Report Fragment"-->
+        <!--tools:layout="@layout/report_fragment">-->
+        <!--<deepLink-->
+            <!--android:id="@+id/deepLink"-->
+            <!--app:uri="inventorytracker.jonathancowling.tk/report" />-->
+    <!--</fragment>-->
+    <!--<fragment-->
+        <!--android:id="@+id/settings_destination"-->
+        <!--android:name="tk.jonathancowling.inventorytracker.settings.SettingsView"-->
+        <!--android:label="Settings" />-->
+</navigation>

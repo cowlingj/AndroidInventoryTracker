@@ -1,20 +1,31 @@
 package tk.jonathancowling.inventorytracker
 
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.commit
 import androidx.navigation.findNavController
-
-import kotlinx.android.synthetic.main.inventory_list_activity.*
+import androidx.navigation.fragment.NavHostFragment
+import kotlinx.android.synthetic.main.activity.*
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.inventory_list_activity)
+        setContentView(R.layout.container)
         setSupportActionBar(toolbar)
+        NavHostFragment.create(R.navigation.activity).let {
+            supportFragmentManager.commit {
+                replace(R.id.container, it)
+                setPrimaryNavigationFragment(it)
+            }
+        }
     }
 
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//        super.onCreateOptionsMenu(menu)
+//        return true
+//    }
+
     override fun onSupportNavigateUp()
-            = findNavController(R.layout.inventory_list_activity).navigateUp()
+            = findNavController(R.layout.activity).navigateUp()
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity"
+    app:startDestination="@+id/authContainer">
+
+    <fragment
+        android:id="@+id/authContainer"
+        android:name="tk.jonathancowling.inventorytracker.authentication.containers.UserContainer"
+        android:label="AuthContainer" />
+</navigation>

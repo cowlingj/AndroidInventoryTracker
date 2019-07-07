@@ -1,4 +1,4 @@
-package tk.jonathancowling.inventorytracker.inventorylist
+package tk.jonathancowling.inventorytracker.inventorylist.listitems
 
 import android.graphics.Rect
 import android.os.Bundle
@@ -7,9 +7,9 @@ import android.util.TypedValue
 import android.view.*
 import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.get
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.paging.PagedListAdapter
@@ -24,8 +24,47 @@ import tk.jonathancowling.inventorytracker.clients.list.models.Item
 import tk.jonathancowling.inventorytracker.communications.AndroidStringFetcher
 import tk.jonathancowling.inventorytracker.communications.CommunicationsChannelManager
 import tk.jonathancowling.inventorytracker.databinding.InventoryListItemBinding
+import tk.jonathancowling.inventorytracker.inventorylist.InventoryListViewModel
+import tk.jonathancowling.inventorytracker.util.existingKeyedScope
 
-class AndroidView : Fragment() {
+class HomeView : Fragment() {
+
+    private val userScope by existingKeyedScope()
+    private val listScope by existingKeyedScope()
+
+    private val authViewModel: FirebaseAuthViewModel by viewModels(
+        ownerProducer = { ViewModelStoreOwner { userScope.store } }
+    )
+
+    private val inventoryListViewModel: InventoryListViewModel by viewModels(
+        ownerProducer = { ViewModelStoreOwner { listScope.store } }
+    )
+
+    private val adapter =
+        object : PagedListAdapter<Item, ListItemHolder>(object : DiffUtil.ItemCallback<Item>() {
+            override fun areItemsTheSame(
+                oldItem: Item,
+                newItem: Item
+            ): Boolean = oldItem.id == newItem.id
+
+            override fun areContentsTheSame(
+                oldItem: Item,
+                newItem: Item
+            ): Boolean = oldItem == newItem
+
+    }) {
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListItemHolder {
+                return ListItemHolder(InventoryListItemBinding.inflate(
+                        layoutInflater,
+                        parent,
+                        false
+                ))
+            }
+
+            override fun onBindViewHolder(vh: ListItemHolder, i: Int) {
+                vh.binding.item = getItem(i)
+            }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,14 +73,13 @@ class AndroidView : Fragment() {
             CommunicationsChannelManager(
                 NotificationManagerCompat.from(it),
                 AndroidStringFetcher(it)::getString
-            )
-                .apply {
-                    subscribe(
-                        CommunicationsChannelManager.Channel.ESSENTIAL,
-                        CommunicationsChannelManager.Channel.DEFAULT,
-                        CommunicationsChannelManager.Channel.REPORT
-                    )
-                }
+            ).apply {
+                subscribe(
+                    CommunicationsChannelManager.Channel.ESSENTIAL,
+                    CommunicationsChannelManager.Channel.DEFAULT,
+                    CommunicationsChannelManager.Channel.REPORT
+                )
+            }
         }
     }
 
@@ -50,56 +88,17 @@ class AndroidView : Fragment() {
         savedInstanceState: Bundle?
     ): View = inflater.inflate(R.layout.inventory_list_content, container, false)
 
-    private val adapter = object : PagedListAdapter<Item, ListItemHolder>(object : DiffUtil.ItemCallback<Item>() {
-        override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean =
-            oldItem.id == newItem.id
-
-        override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean =
-            oldItem == newItem
-
-    }) {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListItemHolder {
-            return ListItemHolder(
-                InventoryListItemBinding.inflate(
-                    layoutInflater,
-                    parent,
-                    false
-                )
-            )
-        }
-
-        override fun onBindViewHolder(vh: ListItemHolder, i: Int) {
-            vh.binding.item = getItem(i)
-        }
-    }
-
-    private val authViewModel: FirebaseAuthViewModel by lazy {
-            ViewModelProviders.of(requireActivity(), FirebaseAuthViewModel.Factory()).get<FirebaseAuthViewModel>()
-    }
-
-    private val inventoryListViewModel: InventoryListViewModel by lazy {
-        ViewModelProviders
-            .of(this, InventoryListViewModel.Factory(requireContext()))
-            .get<InventoryListViewModel>()
-    }
-
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        authViewModel.user.observe(this, Observer {
-            when (it) {
-                is FirebaseAuthViewModel.AuthState.LoggedOut -> {
-                    findNavController().navigate(R.id.login_destination)
-                }
-                is FirebaseAuthViewModel.AuthState.LoggedIn -> {
-                    setUpList()
-                }
-            }
-        })
+        setUpList()
 
         fab.setOnClickListener {
-            findNavController().navigate(R.id.action_inventory_list_to_add_item)
+            findNavController().navigate(R.id.home_to_additem,
+                Bundle().apply {
+                    putInt("userScope", userScope.key)
+                    putInt("listScope", listScope.key)
+                })
         }
 
         inventory_list.addItemDecoration(object : RecyclerView.ItemDecoration() {
@@ -122,9 +121,7 @@ class AndroidView : Fragment() {
 
     private fun setUpList() {
 
-
         try {
-
             inventoryListViewModel.getErrors().observe(this, Observer { e ->
                 Snackbar.make(requireView(), "get items failed", Snackbar.LENGTH_LONG).show()
                 Log.w(this.tag, "get items failed, exception: $e")

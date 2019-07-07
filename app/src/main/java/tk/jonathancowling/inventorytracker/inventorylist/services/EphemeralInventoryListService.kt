@@ -11,7 +11,6 @@ import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import tk.jonathancowling.inventorytracker.clients.list.models.Item
 import tk.jonathancowling.inventorytracker.util.Resettable
-import tk.jonathancowling.inventorytracker.util.prepend
 import tk.jonathancowling.inventorytracker.util.rx.AutoCompositeDisposable
 import java.io.IOException
 import java.util.*
@@ -90,7 +89,7 @@ internal class EphemeralInventoryListService : InventoryListService {
                 }.map {
                     AndroidListItem(it, name, quantity)
                 }.map {
-                    _inventoryList.prepend(it)
+                    _inventoryList.add(0, it)
                     it
                 }.doOnSuccess { dataSrc.invalidate() }
         }

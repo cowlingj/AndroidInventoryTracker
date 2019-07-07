@@ -1,4 +1,4 @@
-package tk.jonathancowling.inventorytracker.additem
+package tk.jonathancowling.inventorytracker.inventorylist.additem
 
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable

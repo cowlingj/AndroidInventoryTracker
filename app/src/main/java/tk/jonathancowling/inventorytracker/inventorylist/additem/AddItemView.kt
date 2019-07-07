@@ -1,4 +1,4 @@
-package tk.jonathancowling.inventorytracker.additem
+package tk.jonathancowling.inventorytracker.inventorylist.additem
 
 
 import android.content.Context
@@ -9,9 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.get
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.disposables.CompositeDisposable
@@ -20,23 +20,34 @@ import tk.jonathancowling.inventorytracker.R
 import tk.jonathancowling.inventorytracker.authentication.FirebaseAuthViewModel
 import tk.jonathancowling.inventorytracker.databinding.AddItemFragmentBinding
 import tk.jonathancowling.inventorytracker.inventorylist.InventoryListViewModel
-import tk.jonathancowling.inventorytracker.util.Optional
+import tk.jonathancowling.inventorytracker.util.existingKeyedScope
 import tk.jonathancowling.inventorytracker.util.rx.AutoCompositeDisposable
 
-class AndroidView : Fragment() {
+class AddItemView : Fragment() {
 
-    private lateinit var vm: AddItemViewModel
+    private val userScope by existingKeyedScope()
+    private val listScope by existingKeyedScope()
+
     private val disposable: CompositeDisposable by AutoCompositeDisposable()
+    private val addItemObservable: AddItemObservable = AddItemObservable()
 
-    private val authViewModel by lazy {
-        ViewModelProviders.of(requireActivity(), FirebaseAuthViewModel.Factory()).get<FirebaseAuthViewModel>()
-    }
+    private val addItemViewModel: AddItemViewModel by viewModels(
+        factoryProducer = { AddItemViewModel.Factory(addItemObservable) }
+    )
+
+    private val authViewModel: FirebaseAuthViewModel by viewModels(
+        ownerProducer =  { ViewModelStoreOwner { userScope.store } }
+    )
+
+    private val inventoryListViewModel : InventoryListViewModel by viewModels(
+        ownerProducer =  { ViewModelStoreOwner { listScope.store } }
+    )
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
 
         authViewModel.user.observe(this, Observer {
             if (it is FirebaseAuthViewModel.AuthState.LoggedOut) {
@@ -44,9 +55,7 @@ class AndroidView : Fragment() {
             }
         })
 
-        val observable = AddItemObservable()
-
-        vm = ViewModelProviders.of(this, AddItemViewModel.Factory(observable)).get(AddItemViewModel::class.java)
+        val observable = addItemObservable
 
         val binding = AddItemFragmentBinding.inflate(inflater, container, false)
         binding.addItem = observable
@@ -58,17 +67,17 @@ class AndroidView : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        var model: Optional<AddItemViewModel.ModelWithValidation.ValidModel> = Optional.empty()
+        var model: AddItemViewModel.ModelWithValidation.ValidModel? = null
 
-        vm.data.observe(this, Observer {
+        addItemViewModel.data.observe(this, Observer {
             when (it) {
                 is AddItemViewModel.ModelWithValidation.ValidModel -> {
                     add_item_add_button.isEnabled = true
-                    model = Optional.of(it)
+                    model = it
                 }
                 is AddItemViewModel.ModelWithValidation.InvalidModel -> {
                     add_item_add_button.isEnabled = false
-                    model = Optional.empty()
+                    model = null
                 }
             }
         })
@@ -87,11 +96,8 @@ class AndroidView : Fragment() {
     }
 
     private fun setAddButton(
-        modelProvider: () -> Optional<AddItemViewModel.ModelWithValidation.ValidModel>
+        modelProvider: () -> AddItemViewModel.ModelWithValidation.ValidModel?
     ) {
-        val vm = ViewModelProviders
-            .of(this, InventoryListViewModel.Factory(requireContext()))
-            .get<InventoryListViewModel>()
 
         add_item_add_button.setOnClickListener {
 
@@ -99,7 +105,7 @@ class AndroidView : Fragment() {
                 .hideSoftInputFromWindow(activity?.currentFocus?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
 
             val model = modelProvider()
-            if (!model.hasData()) {
+            if (model == null) {
                 view?.let {
                     Snackbar
                         .make(it, "oops, something went wrong", Snackbar.LENGTH_LONG)
@@ -110,7 +116,7 @@ class AndroidView : Fragment() {
             }
 
             try {
-                vm.addItem(model.get().name, model.get().quantity).subscribe({ item ->
+                inventoryListViewModel.addItem(model.name, model.quantity).subscribe({ item ->
                     Log.d(tag, "item added $item")
                     findNavController().navigateUp()
                 }, { e ->

@@ -2,35 +2,32 @@ package tk.jonathancowling.inventorytracker.settings
 
 import android.os.Bundle
 import android.text.InputType
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.get
-import androidx.navigation.fragment.findNavController
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
-import tk.jonathancowling.inventorytracker.BuildConfig
 import tk.jonathancowling.inventorytracker.R
-import tk.jonathancowling.inventorytracker.authentication.FirebaseAuthViewModel
+import tk.jonathancowling.inventorytracker.util.existingKeyedScope
 
 class SettingsView : PreferenceFragmentCompat() {
+
+    private val userScope by existingKeyedScope()
+
+    private val settingsViewModel by viewModels<SettingsViewModel>(
+        ownerProducer = { ViewModelStoreOwner { userScope.store } }
+    )
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 
-        val authVM = ViewModelProviders.of(requireActivity(), FirebaseAuthViewModel.Factory()).get<FirebaseAuthViewModel>()
+        settingsViewModel.sharedPreferencesName.observe(this, Observer {
+            preferenceManager.sharedPreferencesName = it
 
-        authVM.user.observe(this, Observer {
-            when (it) {
-                is FirebaseAuthViewModel.AuthState.LoggedIn -> {
-                    preferenceManager.sharedPreferencesName = """${it.user.uid}.${BuildConfig.APPLICATION_ID}"""
+            setPreferencesFromResource(R.xml.sync_preferences, rootKey)
 
-                    setPreferencesFromResource(R.xml.sync_preferences, rootKey)
-                    findPreference<EditTextPreference>("apiKey")!!.setOnBindEditTextListener { editText ->
-                        editText.inputType =
-                            InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                    }
-                }
-                is FirebaseAuthViewModel.AuthState.LoggedOut -> {
-                    findNavController().navigate(R.id.login_destination)
-                }
+            findPreference<EditTextPreference>("apiKey")!!.setOnBindEditTextListener { editText ->
+                editText.inputType =
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             }
         })
     }

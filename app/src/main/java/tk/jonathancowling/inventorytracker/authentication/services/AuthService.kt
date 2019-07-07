@@ -11,5 +11,6 @@ interface AuthService<ProviderT, UserT> {
     sealed class AuthState<UserT> {
         data class Authenticated<UserT>(val user: UserT) : AuthState<UserT>()
         class Unauthenticated<UserT> : AuthState<UserT>()
+        class Failed<UserT>(vararg reasons: Throwable): AuthState<UserT>()
     }
 }

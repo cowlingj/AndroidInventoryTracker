@@ -2,10 +2,13 @@ package tk.jonathancowling.inventorytracker.inventorylist.services
 
 import io.reactivex.disposables.Disposable
 import tk.jonathancowling.inventorytracker.settings.SettingsRepository
+import javax.inject.Provider
 
-internal class InventoryListServiceProvider(settings: SettingsRepository,
-                                            private val choices: Map<Choice, (settings: SettingsRepository.SettingsModel)->InventoryListService>,
-                                            private val default: ()->InventoryListService) {
+internal class InventoryListServiceProvider(
+    settings: SettingsRepository,
+    private val choices: Map<Choice, (settings: SettingsRepository.SettingsModel)->InventoryListService>,
+    private val default: ()->InventoryListService
+) : Provider<InventoryListService> {
 
     private var currentSettings: SettingsRepository.SettingsModel? = null
     private val disposable: Disposable
@@ -18,7 +21,7 @@ internal class InventoryListServiceProvider(settings: SettingsRepository,
         })
     }
 
-    fun get(): InventoryListService = (currentSettings?.let{
+    override fun get(): InventoryListService = (currentSettings?.let{
         choices[choose(it)]?.invoke(it)
     }?:default())
 

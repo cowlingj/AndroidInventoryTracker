@@ -86,6 +86,12 @@ object FirebaseAuthMechanisms {
             }
         }
 
+    private fun isValidPassword(password: String): Boolean {
+        return password.matches(Regex(".{8,}"))
+    }
+
+    private fun isValidEmail(email: String) = true
+
     private fun useEmailPassword(
         email: String,
         password: String,
@@ -94,6 +100,17 @@ object FirebaseAuthMechanisms {
         SingleOperator { observer: SingleObserver<in AuthService.AuthState<FirebaseUser>> ->
             object : SingleObserver<FirebaseAuth> {
                 override fun onSuccess(auth: FirebaseAuth) {
+
+                    if (!isValidPassword(password)) {
+                        observer.onSuccess(AuthService.AuthState.Failed())
+                        return
+                    }
+
+                    if (!isValidEmail(email)) {
+                        observer.onSuccess(AuthService.AuthState.Failed())
+                        return
+                    }
+
                     try {
                         useFor(auth, email, password).addOnSuccessListener {
                             auth.addAuthStateListener(object : FirebaseAuth.AuthStateListener {

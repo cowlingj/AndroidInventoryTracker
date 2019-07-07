@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
 <data>
-    <import type="tk.jonathancowling.inventorytracker.additem.AddItemObservable" />
+    <import type="tk.jonathancowling.inventorytracker.inventorylist.additem.AddItemObservable" />
     <variable
         name="addItem"
         type="AddItemObservable" />
@@ -11,7 +11,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".additem.AndroidView">
+    tools:context=".inventorylist.additem.AddItemView">
 
     <EditText
         android:id="@+id/editText"
