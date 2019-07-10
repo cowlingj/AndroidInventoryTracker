@@ -83,7 +83,8 @@ openApiGenerate {
     version = "0.0.1"
 }
 
-task compileGenerated {
+task compileGeneratedJava {
+    dependsOn(tasks.openApiGenerate)
     sourceSets.all { sourceSet ->
         sourceSet.java.srcDirs += "build/generated/source/api/main/java"
         sourceSet.java.srcDirs += "build/generated/source/api/${sourceSet.name}/java"
@@ -92,6 +93,6 @@ task compileGenerated {
     project.delete(files("${projectDir}/gradle"))
 }
 
-tasks.compileGenerated.dependsOn tasks.openApiGenerate
-compileJava.dependsOn tasks.compileGenerated
-compileKotlin.dependsOn tasks.compileGenerated
+// tasks.compileGenerated.dependsOn tasks.openApiGenerate
+compileJava.dependsOn tasks.compileGeneratedJava
+compileKotlin.dependsOn tasks.compileGeneratedJava

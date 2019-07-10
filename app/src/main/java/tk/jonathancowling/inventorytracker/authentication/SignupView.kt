@@ -16,13 +16,13 @@ import kotlinx.android.synthetic.main.auth_sign_up_content.view.*
 import kotlinx.android.synthetic.main.util_logo_with_card_fragment.view.*
 import tk.jonathancowling.inventorytracker.R
 import tk.jonathancowling.inventorytracker.databinding.AuthSignUpContentBinding
-import tk.jonathancowling.inventorytracker.util.existingKeyedScope
+import tk.jonathancowling.inventorytracker.util.existingScope
 
 class SignupView : Fragment() {
 
     private val observable = EmailPasswordObservable()
 
-    private val userScope by existingKeyedScope()
+    private val userScope by existingScope()
 
     private val authViewModel: FirebaseAuthViewModel by viewModels(
         ownerProducer = { ViewModelStoreOwner { userScope.store } }

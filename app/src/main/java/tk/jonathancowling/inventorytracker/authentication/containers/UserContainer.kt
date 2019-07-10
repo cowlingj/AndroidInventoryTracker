@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
@@ -14,13 +15,16 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
 import tk.jonathancowling.inventorytracker.BuildConfig
 import tk.jonathancowling.inventorytracker.R
+import tk.jonathancowling.inventorytracker.ScopeViewModel
 import tk.jonathancowling.inventorytracker.authentication.FirebaseAuthViewModel
 import tk.jonathancowling.inventorytracker.settings.SettingsViewModel
-import tk.jonathancowling.inventorytracker.util.newKeyedScope
+import tk.jonathancowling.inventorytracker.util.newScope
 
 class UserContainer : Fragment() {
 
-    private val scope by newKeyedScope()
+    private val scope by newScope()
+
+    private val scopeVM: ScopeViewModel by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
@@ -41,6 +45,9 @@ class UserContainer : Fragment() {
             .get<FirebaseAuthViewModel>()
             .user
             .observe(this, Observer {
+
+                scopeVM.popChildren(scope.key)
+
                 when (it) {
                     is FirebaseAuthViewModel.AuthState.LoggedIn -> {
                         "${it.user.uid}.${BuildConfig.APPLICATION_ID}".let { name ->
@@ -77,7 +84,7 @@ class UserContainer : Fragment() {
                             .primaryNavigationFragment!!
                             .findNavController()
                             .navigate(
-                                R.id.login_destination,
+                                R.id.loggedOutContainer,
                                 Bundle().apply {
                                     this.putInt("userScope", scope.key)
                                 }

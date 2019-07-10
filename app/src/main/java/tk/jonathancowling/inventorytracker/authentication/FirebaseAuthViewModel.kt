@@ -8,8 +8,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import io.reactivex.android.schedulers.AndroidSchedulers
 import tk.jonathancowling.inventorytracker.authentication.services.AuthService
-import tk.jonathancowling.inventorytracker.authentication.services.DaggerAuthComponent
 import tk.jonathancowling.inventorytracker.authentication.services.FirebaseAuthMechanisms
+import tk.jonathancowling.inventorytracker.authentication.services.FirebaseAuthService
 import tk.jonathancowling.inventorytracker.util.rx.Backoff
 import tk.jonathancowling.inventorytracker.util.rx.publisherFromObservable
 
@@ -77,7 +77,7 @@ internal class FirebaseAuthViewModel private constructor(
     internal class Factory : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             @Suppress("UNCHECKED_CAST")
-            return FirebaseAuthViewModel(DaggerAuthComponent.create().authService()) as T
+            return FirebaseAuthViewModel(FirebaseAuthService(FirebaseAuth.getInstance())) as T
         }
     }
 }

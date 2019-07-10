@@ -4,14 +4,15 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.onNavDestinationSelected
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,22 +20,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.inventory_list_content.*
 import tk.jonathancowling.inventorytracker.R
-import tk.jonathancowling.inventorytracker.authentication.FirebaseAuthViewModel
 import tk.jonathancowling.inventorytracker.clients.list.models.Item
 import tk.jonathancowling.inventorytracker.communications.AndroidStringFetcher
 import tk.jonathancowling.inventorytracker.communications.CommunicationsChannelManager
 import tk.jonathancowling.inventorytracker.databinding.InventoryListItemBinding
 import tk.jonathancowling.inventorytracker.inventorylist.InventoryListViewModel
-import tk.jonathancowling.inventorytracker.util.existingKeyedScope
+import tk.jonathancowling.inventorytracker.util.existingScope
 
 class HomeView : Fragment() {
 
-    private val userScope by existingKeyedScope()
-    private val listScope by existingKeyedScope()
-
-    private val authViewModel: FirebaseAuthViewModel by viewModels(
-        ownerProducer = { ViewModelStoreOwner { userScope.store } }
-    )
+    private val userScope by existingScope()
+    private val listScope by existingScope()
 
     private val inventoryListViewModel: InventoryListViewModel by viewModels(
         ownerProducer = { ViewModelStoreOwner { listScope.store } }
@@ -50,7 +46,7 @@ class HomeView : Fragment() {
             override fun areContentsTheSame(
                 oldItem: Item,
                 newItem: Item
-            ): Boolean = oldItem == newItem
+            ): Boolean = oldItem.name == newItem.name && oldItem.quantity == newItem.quantity
 
     }) {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListItemHolder {
@@ -104,19 +100,20 @@ class HomeView : Fragment() {
         inventory_list.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                 super.getItemOffsets(outRect, view, parent, state)
-                if (parent.getChildAdapterPosition(view) == state.itemCount - 1) {
+                if (parent.getChildAdapterPosition(view) == parent.layoutManager!!.itemCount - 1) {
                     outRect.bottom = TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP,
                         resources.getDimension(R.dimen.inventory_list_bottom_padding),
                         resources.displayMetrics
                     ).toInt()
+                } else {
+                    outRect.bottom = 0
                 }
             }
         })
 
         inventory_list.adapter = adapter
         inventory_list.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        setHasOptionsMenu(true)
     }
 
     private fun setUpList() {
@@ -140,20 +137,6 @@ class HomeView : Fragment() {
             ).show()
         }
     }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_main, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem) =
-        item.onNavDestinationSelected(findNavController()) || when (item.itemId) {
-            R.id.menu_logout -> {
-                authViewModel.logout()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
 
     class ListItemHolder(val binding: InventoryListItemBinding) : RecyclerView.ViewHolder(binding.root)
 }

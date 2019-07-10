@@ -3,7 +3,7 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="tk.jonathancowling.inventorytracker.AndroidInventoryListView">
     <item
-        android:id="@+id/settings_destination"
+        android:id="@+id/menu_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
@@ -12,6 +12,6 @@
         android:title="@string/menu_logout"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/report_destination"
+        android:id="@+id/menu_report"
         android:title="@string/menu_report" />
 </menu>

@@ -20,13 +20,13 @@ import tk.jonathancowling.inventorytracker.R
 import tk.jonathancowling.inventorytracker.authentication.FirebaseAuthViewModel
 import tk.jonathancowling.inventorytracker.databinding.AddItemFragmentBinding
 import tk.jonathancowling.inventorytracker.inventorylist.InventoryListViewModel
-import tk.jonathancowling.inventorytracker.util.existingKeyedScope
+import tk.jonathancowling.inventorytracker.util.existingScope
 import tk.jonathancowling.inventorytracker.util.rx.AutoCompositeDisposable
 
 class AddItemView : Fragment() {
 
-    private val userScope by existingKeyedScope()
-    private val listScope by existingKeyedScope()
+    private val userScope by existingScope()
+    private val listScope by existingScope()
 
     private val disposable: CompositeDisposable by AutoCompositeDisposable()
     private val addItemObservable: AddItemObservable = AddItemObservable()

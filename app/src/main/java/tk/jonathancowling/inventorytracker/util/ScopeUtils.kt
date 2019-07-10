@@ -11,7 +11,7 @@ import kotlin.reflect.KProperty
 
 data class KeyedScope(val key: Int, val store: ViewModelStore)
 
-fun existingScope(ignoreError: Boolean = false) = object : ReadOnlyProperty<Fragment, Int> {
+fun existingScopeKey(ignoreError: Boolean = false) = object : ReadOnlyProperty<Fragment, Int> {
     override fun getValue(thisRef: Fragment, property: KProperty<*>) =
         thisRef.arguments?.getInt(property.name)?: let {
             if (ignoreError) {
@@ -21,9 +21,9 @@ fun existingScope(ignoreError: Boolean = false) = object : ReadOnlyProperty<Frag
         }
 }
 
-fun existingKeyedScope(ignoreError: Boolean = false) = object : ReadOnlyProperty<Fragment, KeyedScope> {
+fun existingScope(ignoreError: Boolean = false) = object : ReadOnlyProperty<Fragment, KeyedScope> {
 
-    val before = existingScope(ignoreError)
+    val before = existingScopeKey(ignoreError)
 
     override fun getValue(thisRef: Fragment, property: KProperty<*>): KeyedScope =
         before.getValue(thisRef, property).let {
@@ -40,15 +40,15 @@ private fun pushToParent(parentScope: Int, activity: FragmentActivity) =
         .push(parentScope)
 
 
-fun newScope(parentScope: Int = ScopeViewModel.GLOBAL) = object : ReadOnlyProperty<Fragment, Int> {
+fun newScopeKey(parentScope: Int = ScopeViewModel.GLOBAL) = object : ReadOnlyProperty<Fragment, Int> {
 
-    val before = newKeyedScope(parentScope)
+    val before = newScope(parentScope)
 
     override fun getValue(thisRef: Fragment, property: KProperty<*>) =
         before.getValue(thisRef, property).key
 }
 
-fun newKeyedScope(parentScope: Int = ScopeViewModel.GLOBAL) = object : ReadOnlyProperty<Fragment, KeyedScope> {
+fun newScope(parentScope: Int = ScopeViewModel.GLOBAL) = object : ReadOnlyProperty<Fragment, KeyedScope> {
 
     private lateinit var value: KeyedScope
 
@@ -60,6 +60,5 @@ fun newKeyedScope(parentScope: Int = ScopeViewModel.GLOBAL) = object : ReadOnlyP
         }
 
         return value
-
     }
 }

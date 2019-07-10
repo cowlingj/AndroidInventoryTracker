@@ -10,17 +10,16 @@ import tk.jonathancowling.inventorytracker.inventorylist.services.EphemeralInven
 import tk.jonathancowling.inventorytracker.inventorylist.services.InventoryListService
 import tk.jonathancowling.inventorytracker.inventorylist.services.InventoryListServiceProvider
 import tk.jonathancowling.inventorytracker.settings.SettingsRepository
-import javax.inject.Provider
 
-class InventoryListViewModel private constructor(private val listServiceProvider: Provider<InventoryListService>) : ViewModel() {
+class InventoryListViewModel private constructor(private val listServiceProvider: () -> InventoryListService) : ViewModel() {
 
-    fun getErrors(): LiveData<out Throwable> = listServiceProvider.get().errors
+    fun getErrors(): LiveData<out Throwable> = listServiceProvider().errors
 
-    fun getData(): LiveData<out PagedList<Item>> = listServiceProvider.get().inventoryList
+    fun getData(): LiveData<out PagedList<Item>> = listServiceProvider().inventoryList
 
-    fun addItem(name: String, quantity: Int) = listServiceProvider.get().add(name, quantity)
+    fun addItem(name: String, quantity: Int) = listServiceProvider().add(name, quantity)
 
-    fun removeItem(id: String) = listServiceProvider.get().remove(id)
+    fun removeItem(id: String) = listServiceProvider().remove(id)
 
     class Factory(private val settingsRepository: SettingsRepository) : ViewModelProvider.Factory {
 
@@ -32,7 +31,7 @@ class InventoryListViewModel private constructor(private val listServiceProvider
                 InventoryListServiceProvider.Choice.API to { it ->
                     ApiInventoryListService(it.baseUrl!!, it.apiKey!!)
                 },
-                InventoryListServiceProvider.Choice.EPHEMERAL to { it ->
+                InventoryListServiceProvider.Choice.EPHEMERAL to { _ ->
                     ephemeralService
                 }
             )) { ephemeralService }

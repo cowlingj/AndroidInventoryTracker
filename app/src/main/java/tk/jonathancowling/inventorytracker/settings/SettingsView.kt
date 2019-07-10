@@ -8,11 +8,11 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
 import tk.jonathancowling.inventorytracker.R
-import tk.jonathancowling.inventorytracker.util.existingKeyedScope
+import tk.jonathancowling.inventorytracker.util.existingScope
 
 class SettingsView : PreferenceFragmentCompat() {
 
-    private val userScope by existingKeyedScope()
+    private val userScope by existingScope()
 
     private val settingsViewModel by viewModels<SettingsViewModel>(
         ownerProducer = { ViewModelStoreOwner { userScope.store } }

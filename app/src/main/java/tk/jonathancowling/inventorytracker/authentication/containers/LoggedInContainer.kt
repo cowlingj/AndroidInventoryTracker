@@ -10,20 +10,26 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.get
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import tk.jonathancowling.inventorytracker.R
 import tk.jonathancowling.inventorytracker.ScopeViewModel
+import tk.jonathancowling.inventorytracker.authentication.FirebaseAuthViewModel
 import tk.jonathancowling.inventorytracker.inventorylist.InventoryListViewModel
 import tk.jonathancowling.inventorytracker.settings.SettingsViewModel
-import tk.jonathancowling.inventorytracker.util.existingKeyedScope
+import tk.jonathancowling.inventorytracker.util.existingScope
 import tk.jonathancowling.inventorytracker.util.lazyReadOnlyProperty
-import tk.jonathancowling.inventorytracker.util.newScope
+import tk.jonathancowling.inventorytracker.util.newScopeKey
 
 class LoggedInContainer : Fragment() {
 
-    private val userScope by existingKeyedScope()
-    private val listScope by lazyReadOnlyProperty { newScope(userScope.key) }
+    private val userScope by existingScope()
+    private val listScope by lazyReadOnlyProperty { newScopeKey(userScope.key) }
 
     private val settingsVM by viewModels<SettingsViewModel>(
+        ownerProducer = { ViewModelStoreOwner { userScope.store } }
+    )
+
+    private val authVM by viewModels<FirebaseAuthViewModel>(
         ownerProducer = { ViewModelStoreOwner { userScope.store } }
     )
 
@@ -60,5 +66,33 @@ class LoggedInContainer : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_main, menu)
     }
+
+    override fun onOptionsItemSelected(item: MenuItem) =
+        when (item.itemId) {
+            R.id.menu_logout -> {
+                authVM.logout()
+                true
+            }
+            R.id.menu_settings -> {
+                fragmentManager
+                    ?.findFragmentById(R.id.container)
+                    ?.findNavController()
+                    ?.navigate(R.id.settings_destination, Bundle().apply {
+                        putInt("userScope", userScope.key)
+                    })
+                true
+            }
+            R.id.menu_report -> {
+                fragmentManager
+                    ?.findFragmentById(R.id.container)
+                    ?.findNavController()
+                    ?.navigate(R.id.report_destination, Bundle().apply {
+                        putInt("userScope", userScope.key)
+                        putInt("listScope", listScope)
+                    })
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
 
 }
